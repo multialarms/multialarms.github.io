@@ -314,7 +314,7 @@ class MasterControlAlarms {
     }
  
     loadTitle() {
-        const saved = localStorage.getItem('pageTitle') || 'MASTER CONTROL ALARM CLOCK (CBS POD 1)';
+        const saved = localStorage.getItem('pageTitle') || 'MULTI ALARM CLOCK SYSTEM';
         document.getElementById('pageTitle').value = saved;
     }
  
@@ -586,4 +586,5 @@ document.addEventListener('DOMContentLoaded',()=>{ alarmSystem = new MasterContr
 document.addEventListener('click',()=>{ if(alarmSystem?.audioContext?.state==='suspended') alarmSystem.audioContext.resume(); });
 </script>
 </body>
+
 </html>
