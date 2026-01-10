@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Time Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #004080;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        .offset-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #e9f1ff;
+            border: 1px solid #bcd4ff;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        input[type="number"] {
+            width: 50px;
+            padding: 5px;
+            margin: 0 3px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: #004080;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        td {
+            padding: 8px;
+            text-align: center;
+        }
+        tr:nth-child(even) {
+            background-color: #f4f8ff;
+        }
+        .result-box {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 6px;
+            width: 100px;
+            display: inline-block;
+            min-height: 21px;
+        }
+        .button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .add-button {
+            background-color: #004080;
+            color: white;
+        }
+        .add-button:disabled {
+            background-color: gray;
+            cursor: not-allowed;
+        }
+        .clear-button {
+            background-color: #cc0000;
+            color: white;
+        }
+        .clear-button:hover {
+            background-color: #a30000;
+        }
+        .button-container {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+<header>Time Calculator</header>
+<div class="container">
+ 
+    <div class="offset-section">
+        <label>Offset Time:</label>
+        <input type="number" id="offsetHours" min="0" max="99" placeholder="">h
+        <input type="number" id="offsetMinutes" min="0" max="59" placeholder="">m
+        <input type="number" id="offsetSeconds" min="0" max="59" placeholder="">s
+        <button id="clearOffset" class="button clear-button">Clear Offset</button>
+    </div>
+ 
+    <table>
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Input Time (H:M:S)</th>
+            <th>Result Time</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="timeRows">
+        </tbody>
+    </table>
+ 
+    <div class="button-container">
+        <button id="addRow" class="button add-button">Add Row</button>
+        <button id="clearAllRows" class="button clear-button">Clear All Rows</button>
+    </div>
+ 
+    <script>
+        let rowCount = 0;
+        const maxRows = 100;
+ 
+        function createTimeInput(className, max) {
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.min = 0;
+            input.max = max;
+            input.placeholder = "";
+            input.classList.add(className);
+ 
+            input.addEventListener('focus', function () {
+                this.select();
+            });
+ 
+            input.addEventListener('input', function () {
+                if (this.value.length > 2) this.value = this.value.slice(0, 2);
+                if (parseInt(this.value) > max) this.value = max;
+            });
+ 
+            return input;
+        }
+ 
+        function setAutoTab(current, next) {
+            current.addEventListener('input', function () {
+                if (this.value.length === 2) {
+                    next.focus();
+                    next.select();
+                }
+            });
+        }
+ 
+        function createTimeRow() {
+            if (rowCount >= maxRows) return;
+ 
+            rowCount++;
+            const tbody = document.getElementById('timeRows');
+            const row = document.createElement('tr');
+ 
+            const numCell = document.createElement('td');
+            numCell.textContent = rowCount;
+            row.appendChild(numCell);
+ 
+            const inputCell = document.createElement('td');
+            const hIn = createTimeInput('hourInput', 99);
+            const mIn = createTimeInput('minuteInput', 59);
+            const sIn = createTimeInput('secondInput', 59);
+ 
+            inputCell.append(hIn, document.createTextNode('h '), mIn, document.createTextNode('m '), sIn, document.createTextNode('s'));
+            setAutoTab(hIn, mIn);
+            setAutoTab(mIn, sIn);
+ 
+            const resultCell = document.createElement('td');
+            const resultBox = document.createElement('div');
+            resultBox.classList.add('result-box');
+            resultBox.textContent = "";
+            resultCell.appendChild(resultBox);
+ 
+            const actionCell = document.createElement('td');
+            const clearBtn = document.createElement('button');
+            clearBtn.textContent = "Clear";
+            clearBtn.classList.add('button', 'clear-button');
+            clearBtn.addEventListener('click', function () {
+                hIn.value = "";
+                mIn.value = "";
+                sIn.value = "";
+                resultBox.textContent = "";
+                hIn.focus();
+                hIn.select();
+            });
+            actionCell.appendChild(clearBtn);
+ 
+            row.append(inputCell, resultCell, actionCell);
+            tbody.appendChild(row);
+ 
+            sIn.addEventListener('input', function() {
+                if (this.value.length === 2) {
+                    const idx = Array.from(tbody.children).indexOf(row);
+                    if (idx + 1 < tbody.children.length) {
+                        const nextH = tbody.children[idx + 1].querySelector('.hourInput');
+                        nextH.focus();
+                        nextH.select();
+                    }
+                }
+            });
+ 
+            updateResults();
+        }
+ 
+        function updateResults() {
+            const offsetH = parseInt(document.getElementById('offsetHours').value) || 0;
+            const offsetM = parseInt(document.getElementById('offsetMinutes').value) || 0;
+            const offsetS = parseInt(document.getElementById('offsetSeconds').value) || 0;
+ 
+            document.querySelectorAll('#timeRows tr').forEach(row => {
+                const hVal = row.querySelector('.hourInput').value;
+                const mVal = row.querySelector('.minuteInput').value;
+                const sVal = row.querySelector('.secondInput').value;
+ 
+                if (hVal || mVal || sVal) {
+                    const h = parseInt(hVal) || 0;
+                    const m = parseInt(mVal) || 0;
+                    const s = parseInt(sVal) || 0;
+ 
+                    let totalSeconds = (h + offsetH) * 3600 + (m + offsetM) * 60 + (s + offsetS);
+                    let finalH = Math.floor(totalSeconds / 3600);
+                    let rem = totalSeconds % 3600;
+                    let finalM = Math.floor(rem / 60);
+                    let finalS = rem % 60;
+ 
+                    row.querySelector('.result-box').textContent =
+                        String(finalH).padStart(2, '0') + ":" +
+                        String(finalM).padStart(2, '0') + ":" +
+                        String(finalS).padStart(2, '0');
+                } else {
+                    row.querySelector('.result-box').textContent = "";
+                }
+            });
+        }
+ 
+        // Add Row
+        document.getElementById('addRow').addEventListener('click', function() {
+            createTimeRow();
+            if (rowCount >= maxRows) this.disabled = true;
+        });
+ 
+        // Clear All Rows
+        document.getElementById('clearAllRows').addEventListener('click', function () {
+            document.querySelectorAll('#timeRows tr').forEach(row => {
+                row.querySelector('.hourInput').value = "";
+                row.querySelector('.minuteInput').value = "";
+                row.querySelector('.secondInput').value = "";
+                row.querySelector('.result-box').textContent = "";
+            });
+        });
+ 
+        // Clear Offset and recalc
+        document.getElementById('clearOffset').addEventListener('click', function () {
+            document.getElementById('offsetHours').value = "";
+            document.getElementById('offsetMinutes').value = "";
+            document.getElementById('offsetSeconds').value = "";
+            updateResults(); // Force recalculation with blank offset
+        });
+ 
+        // Offset auto-tab + validation
+        const offsetInputs = [
+            document.getElementById('offsetHours'),
+            document.getElementById('offsetMinutes'),
+            document.getElementById('offsetSeconds')
+        ];
+        offsetInputs.forEach((input, idx, arr) => {
+            const maxVal = input.id.includes('Hours') ? 99 : 59;
+            input.addEventListener('focus', () => input.select());
+            input.addEventListener('input', function() {
+                if (this.value.length > 2) this.value = this.value.slice(0, 2);
+                if (parseInt(this.value) > maxVal) this.value = maxVal;
+                if (this.value.length === 2 && idx < arr.length - 1) {
+                    arr[idx + 1].focus();
+                    arr[idx + 1].select();
+                }
+            });
+        });
+ 
+        document.addEventListener('input', updateResults);
+ 
+        // Initial Rows
+        for (let i = 0; i < 20; i++) createTimeRow();
+    </script>
+</div>
+</body>
+</html>
