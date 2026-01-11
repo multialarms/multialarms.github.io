@@ -257,6 +257,28 @@ input:checked + .slider:before{transform:translateX(30px);}
 }
 .remove-alarm-btn:hover { background:darkred; }
 .custom-audio-input { font-size:12px; color:white; }
+
+nav {
+        margin-top: 15px; /* Moves the navigation lower */
+    }
+ 
+    nav a {
+        border: 1px solid green;     /* Thin green border */
+        border-radius: 5px;          /* Rounded corners */
+        color: white;                /* White text */
+        padding: 5px 10px;           /* Space inside the link */
+        margin-right: 10px;          /* Space between links */
+        text-decoration: none;       /* Remove underline */
+        display: inline-block;       /* Allow padding/border styling */
+        transition: color 0.3s ease, border-color 0.3s ease, font-weight 0.3s ease;
+    }
+ 
+    nav a:hover {
+        color: green;                /* Text turns green on hover */
+        font-weight: bold;           /* Bold text on hover */
+        border-color: green;         /* Border changes to green on hover */
+    }
+	
 </style>
 </head>
 <body>
@@ -818,6 +840,7 @@ document.addEventListener('click',()=>{
 </body>
 
 </html>
+
 
 
 
