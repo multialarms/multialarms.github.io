@@ -712,7 +712,24 @@ confirmRemoveAlarm(index) {
         setInterval(updateTime, 1000);
     }
  
-    startAlarmChecker() { setInterval(() => { this.checkAlarms(); }, 1000); }
+    startAlarmChecker(){
+    // Create inline Web Worker to bypass tab throttling
+    const workerCode = `
+        setInterval(() => {
+            postMessage('tick');
+        }, 1000);
+    `;
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    const worker = new Worker(URL.createObjectURL(blob));
+ 
+    worker.onmessage = (e) => {
+        if (e.data === 'tick') {
+            this.checkAlarms();
+        }
+    };
+ 
+    this.alarmWorker = worker;
+}
  
     checkAlarms() {
         const now = new Date();
@@ -840,6 +857,7 @@ document.addEventListener('click',()=>{
 </body>
 
 </html>
+
 
 
 
