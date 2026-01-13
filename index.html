@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -680,7 +681,7 @@ async loadCustomSoundsFromDB() {
                 </div>
                 ${alarm.sound==='Custom' ? `<input type="file" class="custom-audio-input" accept="audio/*" onchange="alarmSystem.updateCustomSound(${index}, this.files[0])">` : ''}
                 <div class="auto-snooze-block">
-                    <label>Auto-Snooze:
+                    <label>Auto-Snooze in:
                         <select class="auto-snooze-select" onchange="alarmSystem.updateAutoSnooze(${index}, this.value)">
                             <option value="10" ${alarm.autoSnoozeTime===10?'selected':''}>10 seconds</option>
                             <option value="15" ${alarm.autoSnoozeTime===15?'selected':''}>15 seconds</option>
@@ -801,54 +802,83 @@ confirmRemoveAlarm(index) {
     }
  
     triggerAlarm(index) {
-        const alarm = this.alarms[index];
-        alarm.isRinging = true;
-        alarm.lastTriggered = new Date();
-        this.activeAlarms.add(index);
-        document.getElementById(`alarm-${index}`).classList.add('ringing');
-        document.getElementById(`snooze-${index}`).classList.add('visible');
-        if (alarm.sound === 'Custom' && alarm.customSoundUrl) {
-            this.playCustomSound(alarm.customSoundUrl);
-            this.soundLoops[index] = setInterval(() => this.playCustomSound(alarm.customSoundUrl), 2000);
-        } else {
+    const alarm = this.alarms[index];
+    alarm.isRinging = true;
+    alarm.lastTriggered = new Date();
+    this.activeAlarms.add(index);
+    
+    document.getElementById(`alarm-${index}`).classList.add('ringing');
+    document.getElementById(`snooze-${index}`).classList.add('visible');
+
+    if (alarm.sound === 'Custom' && alarm.customSoundUrl) {
+        // --- CUSTOM SOUND LOGIC (Using Audio Object Loop) ---
+        const audio = new Audio(alarm.customSoundUrl);
+        audio.loop = true;
+        audio.play().catch(e => console.error("Audio play failed", e));
+        this.soundLoops[index] = audio; 
+    } else {
+        // --- GENERATED SOUND LOGIC (Using Interval) ---
+        // Play once immediately
+        this.playSelectedSound(alarm.sound);
+        // Repeat every 2 seconds because generated sounds are short
+        this.soundLoops[index] = setInterval(() => {
             this.playSelectedSound(alarm.sound);
-            this.soundLoops[index] = setInterval(() => this.playSelectedSound(alarm.sound), 2000);
-        }
-        if (alarm.autoSnoozeTime) {
-            setTimeout(() => { if (alarm.isRinging) this.snoozeAlarm(index); }, alarm.autoSnoozeTime * 1000);
-        }
-        this.saveAlarms();
+        }, 2000);
     }
- 
-    snoozeAlarm(index) {
-        const alarm = this.alarms[index];
-        alarm.isRinging = false;
-        document.getElementById(`alarm-${index}`).classList.remove('ringing');
-        document.getElementById(`snooze-${index}`).classList.remove('visible');
-        this.activeAlarms.delete(index);
-        if (this.soundLoops[index]) {
+
+    if (alarm.autoSnoozeTime) {
+        setTimeout(() => { 
+            if (alarm.isRinging) this.snoozeAlarm(index); 
+        }, alarm.autoSnoozeTime * 1000);
+    }
+    this.saveAlarms();
+}
+
+snoozeAlarm(index) {
+    const alarm = this.alarms[index];
+    alarm.isRinging = false;
+    document.getElementById(`alarm-${index}`).classList.remove('ringing');
+    document.getElementById(`snooze-${index}`).classList.remove('visible');
+    this.activeAlarms.delete(index);
+
+    if (this.soundLoops[index]) {
+        // Check if it's an Interval (number) or Audio Object
+        if (typeof this.soundLoops[index] === 'number') {
             clearInterval(this.soundLoops[index]);
-            delete this.soundLoops[index];
-        }
-        this.saveAlarms();
-    }
- 
-    toggleAlarm(index) {
-        this.alarms[index].enabled = !this.alarms[index].enabled;
-        const card = document.getElementById(`alarm-${index}`);
-        const status = document.getElementById(`status-${index}`);
-        if (this.alarms[index].enabled) {
-            card.classList.add('active'); status.textContent = 'ARMED';
         } else {
-            card.classList.remove('active'); status.textContent = 'DISABLED';
-            if (this.alarms[index].isRinging) this.snoozeAlarm(index);
-            if (this.soundLoops[index]) {
-                clearInterval(this.soundLoops[index]);
-                delete this.soundLoops[index];
-            }
+            this.soundLoops[index].pause();
         }
-        this.saveAlarms();
+        this.soundLoops[index] = null;
     }
+    this.saveAlarms();
+}
+
+toggleAlarm(index) {
+    this.alarms[index].enabled = !this.alarms[index].enabled;
+    const card = document.getElementById(`alarm-${index}`);
+    const status = document.getElementById(`status-${index}`);
+    
+    if (this.alarms[index].enabled) {
+        card.classList.add('active'); 
+        status.textContent = 'ARMED';
+    } else {
+        card.classList.remove('active'); 
+        status.textContent = 'DISABLED';
+        
+        if (this.alarms[index].isRinging) {
+            this.snoozeAlarm(index);
+        } else if (this.soundLoops[index]) {
+            // Safety cleanup for non-ringing sound loops
+            if (typeof this.soundLoops[index] === 'number') {
+                clearInterval(this.soundLoops[index]);
+            } else {
+                this.soundLoops[index].pause();
+            }
+            this.soundLoops[index] = null;
+        }
+    }
+    this.saveAlarms();
+}
  updateDescription(i,v){ this.alarms[i].description = v; this.saveAlarms(); }
     updateTime(i,v){ this.alarms[i].time = v; this.saveAlarms(); }
     updateDay(i,d,c){ this.alarms[i].days[d] = c; this.saveAlarms(); }
