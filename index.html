@@ -278,6 +278,21 @@ nav {
         font-weight: bold;           /* Bold text on hover */
         border-color: green;         /* Border changes to green on hover */
     }
+
+.export-import-btn {
+    margin:5px;
+    padding:8px 14px;
+    border:none;
+    border-radius:6px;
+    background:rgba(255,255,255,0.2);
+    color:white;
+    cursor:pointer;
+    font-size:14px;
+    transition:all 0.3s ease;
+}
+.export-import-btn:hover {
+    background:rgba(255,255,255,0.3);
+}
 	
 </style>
 </head>
@@ -323,6 +338,11 @@ nav {
             <input type="text" id="pageTitle" class="header-title">
             <button id="undoButton" onclick="alarmSystem.undoLastRemoval()">Undo</button>
             <div class="current-time" id="currentTime"></div>
+		<div>
+        <button class="export-import-btn" onclick="alarmSystem.exportSettings()">Export Settings</button>
+        <button class="export-import-btn" onclick="document.getElementById('importFileInput').click()">Import Settings</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="alarmSystem.importSettings(this.files[0])">
+    </div>
 			<nav>
     <a href="index.html">Home</a>
     <a href="TimeCalculator.html">Time Calculator</a>
@@ -556,6 +576,39 @@ class MasterControlAlarms {
         });
         this.setupUndoShortcut();
     }
+
+/* ---------- Import / Export Settings Methods ---------- */
+    exportSettings(){
+        const settings = {
+            pageTitle: localStorage.getItem('pageTitle'),
+            alarms: localStorage.getItem('masterControlAlarms')
+        };
+        const blob = new Blob([JSON.stringify(settings)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'alarm-settings.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+ 
+    importSettings(file){
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.pageTitle) localStorage.setItem('pageTitle', data.pageTitle);
+                if (data.alarms) localStorage.setItem('masterControlAlarms', data.alarms);
+                alert('Settings imported! Reloading...');
+                location.reload();
+            } catch (err) {
+                alert('Invalid settings file.');
+            }
+        };
+        reader.readAsText(file);
+    }
+    /* ------------------------------------------------------- */
  
     initAudioContext() {
         try { this.audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -857,7 +910,6 @@ document.addEventListener('click',()=>{
 </body>
 
 </html>
-
 
 
 
