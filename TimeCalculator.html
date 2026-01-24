@@ -1,14 +1,11 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Time Calculator</title>
-    <nav>
-    <a href="index.html">Home</a>
-    <a href="TimeCalculator.html">Time Calculator</a>
-    </nav>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,37 +17,41 @@
         header {
             background-color: #004080;
             color: white;
-            padding: 15px;
+            padding: 20px 15px; /* Increased padding for better spacing */
             text-align: center;
             font-size: 24px;
             font-weight: bold;
         }
 nav {
-        margin-top: 15px; /* Moves the navigation lower */
-    }
- 
-    nav a {
-        border: 1px solid green;     /* Thin green border */
-        border-radius: 5px;          /* Rounded corners */
-        color: white;                /* White text */
-        padding: 5px 10px;           /* Space inside the link */
-        margin-right: 10px;          /* Space between links */
-        text-decoration: none;       /* Remove underline */
-        display: inline-block;       /* Allow padding/border styling */
-        transition: color 0.3s ease, border-color 0.3s ease, font-weight 0.3s ease;
-    }
- 
-    nav a:hover {
-        color: green;                /* Text turns green on hover */
-        font-weight: bold;           /* Bold text on hover */
-        border-color: green;         /* Border changes to green on hover */
-    }
+    margin-top: 15px;
+    display: flex;          /* Use flexbox for easy centering */
+    justify-content: center; 
+    gap: 10px;              /* Space between buttons */
+}
+
+nav a {
+    border: 1px solid green;
+    border-radius: 5px;
+    color: white;
+    padding: 5px 15px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;        /* Slightly smaller than the title */
+    font-weight: normal;
+    transition: all 0.3s ease;
+}
+
+nav a:hover {
+    color: #00ff00;         /* Brighter green for better visibility on blue */
+    border-color: #00ff00;
+    background-color: rgba(255, 255, 255, 0.1); /* Subtle highlight */
+}
 
 
         .container {
             max-width: 1000px;
             margin: 20px auto;
-            background: white;
+            background: #e9f1ff;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border-radius: 8px;
@@ -133,7 +134,15 @@ nav {
     </style>
 </head>
 <body>
-<header>Time Calculator</header>
+<header>
+    <div>Time Calculator</div>
+    <nav>
+        <a href="index.html">Home</a>
+	<a href="multialarms.html">Multi Alarms</a>
+        <a href="TimeCalculator.html">Time Calculator</a>
+	<a href="/contact">YouTube</a>
+    </nav>
+</header>
 <div class="container">
  
     <div class="offset-section">
@@ -143,6 +152,7 @@ nav {
         <input type="number" id="offsetSeconds" min="0" max="59" placeholder="">s
         <button id="clearOffset" class="button clear-button">Clear Offset</button>
     </div>
+
  
     <table>
         <thead>
