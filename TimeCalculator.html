@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,13 +7,12 @@
     <title>Time Calculator</title>
     <nav>
     <a href="index.html">Home</a>
-    <a href="multialarms.html">Multi Alarms</a>
     <a href="TimeCalculator.html">Time Calculator</a>
-</nav>
+    </nav>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            background-color: #1e3c72;
             color: #333;
             margin: 0;
             padding: 0;
@@ -24,6 +25,28 @@
             font-size: 24px;
             font-weight: bold;
         }
+nav {
+        margin-top: 15px; /* Moves the navigation lower */
+    }
+ 
+    nav a {
+        border: 1px solid green;     /* Thin green border */
+        border-radius: 5px;          /* Rounded corners */
+        color: white;                /* White text */
+        padding: 5px 10px;           /* Space inside the link */
+        margin-right: 10px;          /* Space between links */
+        text-decoration: none;       /* Remove underline */
+        display: inline-block;       /* Allow padding/border styling */
+        transition: color 0.3s ease, border-color 0.3s ease, font-weight 0.3s ease;
+    }
+ 
+    nav a:hover {
+        color: green;                /* Text turns green on hover */
+        font-weight: bold;           /* Bold text on hover */
+        border-color: green;         /* Border changes to green on hover */
+    }
+
+
         .container {
             max-width: 1000px;
             margin: 20px auto;
@@ -312,5 +335,4 @@
 </body>
 
 </html>
-
 
