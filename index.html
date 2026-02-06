@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,6 +91,18 @@
             font-size: 0.95em;
         }
 
+	/* Sets the initial color of links within the footer to white */
+	footer a {
+    	color: white;
+    	text-decoration: none; /* Optional: removes the default underline */
+	}
+
+	/* Changes the color of footer links to green when the cursor hovers over them */
+	footer a:hover {
+    	color: green;
+    	text-decoration: underline; /* Optional: adds an underline back on hover for accessibility */
+	}
+
         /* Responsive design */
         @media (max-width: 768px) {
             .header-title {
@@ -175,7 +188,10 @@
     </main>
 
     <footer>
-        © 2026 Multi Alarm Clock System. All rights reserved.
-    </footer>
+    <a href="contact.html">Contact Us</a> | 
+    <a href="terms.html">Terms of Use</a> | 
+    <a href="privacy.html">Privacy</a> | 
+    © 2026 Multi Alarm Clock System. All rights reserved.
+</footer>
 </body>
 </html>
