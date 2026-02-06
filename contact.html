@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +14,7 @@
             margin: 0;
             padding: 20px;
             display: flex;
+	    flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -97,6 +99,28 @@
             color: #00bfff;
             text-decoration: none;
         }
+
+	footer {
+            text-align: center;
+            padding: 18px;
+            background-color: #1a3559;
+            color: #c0d4ff;
+            margin-top: 40px;
+            font-size: 0.95em;
+        }
+
+	/* Sets the initial color of links within the footer to white */
+	footer a {
+    	color: white;
+    	text-decoration: none; /* Optional: removes the default underline */
+	}
+
+	/* Changes the color of footer links to green when the cursor hovers over them */
+	footer a:hover {
+    	color: green;
+    	text-decoration: underline; /* Optional: adds an underline back on hover for accessibility */
+	}
+
     </style>
 </head>
 <body>
@@ -126,5 +150,13 @@
            
         </form>
     </div>
+
+	<footer>
+        <a href="contact.html">Contact Us</a> | 
+        <a href="terms.html">Terms and Conditions</a> | 
+        <a href="privacy.html">Privacy</a> | 
+        © 2026 MultiAlarms - All rights reserved.
+	</footer>
+
 </body>
 </html>
