@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -150,7 +152,16 @@ body{
     margin-bottom:15px;
     gap:10px;
 }
-.alarm-number{font-size:1.2em;font-weight:bold;color:#FFD700;}
+.alarm-number{
+  font-size:1.2em;
+  font-weight:bold;
+  /* Use a linear gradient for the multi-tone effect */
+  background: linear-gradient(to bottom, #f9a32c, #eb7300);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color:#FFD700; /* Fallback for browsers that don't support background-clip: text */
+}
 .alarm-toggle{position:relative;width:60px;height:30px;}
 .alarm-toggle input{opacity:0;width:0;height:0;}
 .slider{
@@ -655,20 +666,49 @@ class MasterControlAlarms {
     }
  
     async loadAlarms() {
+    try {
         const savedAlarms = localStorage.getItem('masterControlAlarms');
-        if (savedAlarms) { this.alarms = JSON.parse(savedAlarms); }
-        else {
+        let parsedData = savedAlarms ? JSON.parse(savedAlarms) : null;
+        if (!parsedData || !Array.isArray(parsedData) || parsedData.length === 0) {
+            const defaults = [];
             for (let i = 0; i < 20; i++) {
-                this.alarms.push({
-                    id: i, enabled: false, time: '09:00',
+                defaults.push({
+                    id: i, enabled: false, time: '09:00:00',  // Updated default to include :00 for consistency
                     days: [false,false,false,false,false,false,false],
                     description: `Alarm ${i+1}`, sound: 'Beep',
                     isRinging: false, lastTriggered: null,
                     autoSnoozeTime: 10, customSoundUrl: null
                 });
             }
+            this.alarms = defaults;
+            localStorage.setItem('masterControlAlarms', JSON.stringify(this.alarms));
+        } else {
+            this.alarms = parsedData;
         }
+        // Normalize all alarm times to include seconds
+        this.alarms.forEach(alarm => {
+            if (alarm.time && alarm.time.length === 5) {
+                alarm.time += ':00';
+            }
+        });
+
+// NEW: Clear any stale ringing state on load/refresh
+        this.alarms.forEach(alarm => {
+            if (alarm.isRinging) {
+                alarm.isRinging = false;
+                // Optional: also clear lastTriggered if you want to be extra clean
+                // alarm.lastTriggered = null;
+            }
+        });
+
+        this.saveAlarms();  // Persist the cleared state immediately
+        this.startAlarmChecker();
+    } catch (error) {
+        console.error("Error loading alarms:", error);
+        this.alarms = [];
     }
+}
+
 async loadCustomSoundsFromDB() {
         for (let alarm of this.alarms) {
             if (alarm.sound === 'Custom') {
@@ -799,23 +839,35 @@ confirmRemoveAlarm(index) {
         setInterval(updateTime, 1000);
     }
  
-    startAlarmChecker(){
-    // Create inline Web Worker to bypass tab throttling
+    startAlarmChecker() {
+    // 1. Kill any existing worker to prevent double-timers
+    if (this.alarmWorker) {
+        this.alarmWorker.terminate();
+    }
+
+    // 2. Create the worker logic
     const workerCode = `
         setInterval(() => {
             postMessage('tick');
         }, 1000);
     `;
-    const blob = new Blob([workerCode], { type: 'application/javascript' });
-    const worker = new Worker(URL.createObjectURL(blob));
- 
-    worker.onmessage = (e) => {
-        if (e.data === 'tick') {
-            this.checkAlarms();
-        }
-    };
- 
-    this.alarmWorker = worker;
+    
+    try {
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        const worker = new Worker(URL.createObjectURL(blob));
+
+        worker.onmessage = (e) => {
+            if (e.data === 'tick' && typeof this.checkAlarms === 'function') {
+                this.checkAlarms();
+            }
+        };
+
+        this.alarmWorker = worker;
+    } catch (workerError) {
+        console.error("Worker failed to start, falling back to main thread:", workerError);
+        // Fallback: if Worker is blocked by browser, use standard interval
+        setInterval(() => this.checkAlarms(), 1000);
+    }
 }
  
     checkAlarms() {
@@ -913,7 +965,14 @@ toggleAlarm(index) {
     this.saveAlarms();
 }
  updateDescription(i,v){ this.alarms[i].description = v; this.saveAlarms(); }
-    updateTime(i,v){ this.alarms[i].time = v; this.saveAlarms(); }
+
+    updateTime(i, v) {
+    if (v.length === 5) {
+        v += ':00';
+    }
+    this.alarms[i].time = v;
+    this.saveAlarms();
+}
     updateDay(i,d,c){ this.alarms[i].days[d] = c; this.saveAlarms(); }
     updateAutoSnooze(i,val){ this.alarms[i].autoSnoozeTime = (val==='none')?null:parseInt(val,10); this.saveAlarms(); }
     updateSound(i,v){ this.alarms[i].sound = v; if (v!=='Custom') this.alarms[i].customSoundUrl = null; this.saveAlarms(); this.createAlarmCards(); }
