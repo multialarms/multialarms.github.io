@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,6 +27,38 @@
             border-radius: 8px;
             background-color: #0f1e3a;
         }
+
+	nav {
+            background-color: #233b5e;
+            padding: 12px 0;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline-block;
+            margin: 0 18px;
+        }
+
+        nav ul li a {
+            color: #e0f0ff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.05em;
+            transition: color 0.2s ease;
+        }
+
+        nav ul li a:hover {
+            color: #4caf50;                    /* Green on hover */
+        }
+
+
         h1 {
             /* Use a linear gradient for the multi-tone effect */
  		 background: linear-gradient(to bottom, #f9ef2c, #eb4e00);
@@ -124,6 +157,17 @@
     </style>
 </head>
 <body>
+
+     <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="multialarms.html">Multi Alarms</a></li>
+            <li><a href="TimeCalculator.html">Time Calculator</a></li>
+            <li><a href="https://www.youtube.com/@MultiAlarms" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+            <!-- Add more links as needed for other pages on your website -->
+        </ul>
+    </nav>
+
     <div class="contact-container">
         <h1>Contact Us</h1>
         <form action="https://formsubmit.co/eae58b3658ae7005d32f956ed235d0fe" method="POST">
