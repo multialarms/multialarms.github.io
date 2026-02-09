@@ -1,4 +1,7 @@
 
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +16,7 @@
       --link-color: #1a73e8;
       --link-hover: #0d47a1;
       --border-color: #e0e0e0;
+      --toggle-bg: #e0e0e0;
       --card-bg: #f9f9f9;
     }
 
@@ -23,6 +27,7 @@
       --link-color: #8ab4f8;
       --link-hover: #bbdefb;
       --border-color: #333333;
+      --toggle-bg: #444;
       --card-bg: #1e1e1e;
     }
 
@@ -119,6 +124,22 @@
       header { flex-direction: column; align-items: flex-start; gap: 15px; }
     }
 
+    .nav-links {
+    display: flex;
+    gap: 20px;
+    }
+
+/* Ensure links look like menu items and not just body text */
+  .nav-links a {
+  font-weight: 500;
+  color: var(--text-color);
+   }
+
+  .nav-links a:hover {
+  color: #4caf50;
+  text-decoration: none;
+   }
+
     footer {
       text-align: center;
       margin-top: 3rem;
@@ -134,9 +155,17 @@
 
   <div class="container">
     <header>
-      <h1>Privacy Policy</h1>
-      <button class="theme-toggle" id="themeToggle">Dark Mode</button>
-    </header>
+  <h1>Privacy Policy</h1>
+  
+  <nav class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="multialarms.html">Multi Alarms</a>
+    <a href="TimeCalculator.html">Time Calculator</a>
+    <a href="https://www.youtube.com/@MultiAlarms" target="_blank" rel="noopener noreferrer">YouTube</a>
+  </nav>
+
+  <button class="theme-toggle" id="themeToggle">Dark Mode</button>
+</header>
 
     <p><strong>Effective Date:</strong> February 6, 2026</p>
 
