@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,6 +65,60 @@
       font-style: italic;
       margin: 8px 0 0;
     }
+
+     /* Refined Navigation Styles */
+    nav {
+      margin-top: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .nav-links {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    /* Light Mode: Black text */
+    .nav-links a {
+      text-decoration: none;
+      color: #000000; 
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.3s ease;
+    }
+
+    /* Dark Mode: White text */
+    [data-theme="dark"] .nav-links a {
+      color: #ffffff;
+    }
+
+    /* System Preference Fallback for Dark Mode */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .nav-links a {
+        color: #ffffff;
+      }
+    }
+
+    /* Hover State: Green text */
+    .nav-links a:hover {
+      color: #4caf50;
+      text-decoration: none;
+    }
+
+    /* Specific hover state for Dark Mode */
+[data-theme="dark"] .nav-links a:hover {
+  color: #4caf50;
+}
+
+/* Specific hover state for System Preference Dark Mode */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .nav-links a:hover {
+    color: #4caf50;
+  }
+}
 
     h2 {
       margin-top: 2.5rem;
@@ -166,6 +223,16 @@
     <header>
       <h1>Terms and Conditions</h1>
       <p class="last-updated">Last Updated: February 2026</p>
+      
+      <!-- New Nav Section -->
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="multialarms.html">Multi Alarms</a></li>
+          <li><a href="TimeCalculator.html">Time Calculator</a></li>
+          <li><a href="https://www.youtube.com/@MultiAlarms" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+        </ul>
+      </nav>
     </header>
 
     <main>
