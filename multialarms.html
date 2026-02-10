@@ -1104,6 +1104,22 @@ toggleAlarm(index) {
         setTimeout(()=>btn.classList.remove('playing'),300);
     }
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+  const url = encodeURIComponent(window.location.href);
+  const title = encodeURIComponent(document.title);
+
+  document.getElementById('share-fb').href = `https://www.facebook.com{url}`;
+  document.getElementById('share-tw').href = `https://twitter.com{url}&text=${title}`;
+  document.getElementById('share-wa').href = `https://api.whatsapp.com{title}%20${url}`;
+  document.getElementById('share-rd').href = `https://www.reddit.com{url}&title=${title}`;
+  document.getElementById('share-in').href = `https://www.linkedin.com{url}`;
+  document.getElementById('share-tg').href = `https://t.me{url}&text=${title}`;
+  document.getElementById('share-pi').href = `https://pinterest.com{url}&description=${title}`;
+  document.getElementById('share-bl').href = `https://www.blogger.com{url}&n=${title}`;
+  document.getElementById('share-ml').href = `mailto:?subject=${title}&body=Check this out: ${url}`;
+});
+
 // ===== Bootstrapping =====
 let alarmSystem;
 document.addEventListener('DOMContentLoaded',()=>{ 
