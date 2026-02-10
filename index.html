@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -119,6 +120,34 @@
                 padding: 18px;
             }
         }
+
+        .share-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 20px;
+  border-top: 1px solid #ddd;
+}
+.share-btn {
+  padding: 8px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+/* Brand Colors */
+#share-fb { background: #3b5998; }
+#share-tw { background: #000000; }
+#share-wa { background: #25d366; }
+#share-rd { background: #ff4500; }
+#share-in { background: #0077b5; }
+#share-tg { background: #0088cc; }
+#share-pi { background: #bd081c; }
+#share-bl { background: #f57d00; }
+#share-ml { background: #777777; }
+
     </style>
 </head>
 <body>
@@ -135,6 +164,8 @@
             <!-- Add more links as needed for other pages on your website -->
         </ul>
     </nav>
+
+    
 
     <main>
         <article>
@@ -187,11 +218,58 @@
         </article>
     </main>
 
+      <div class="share-container">
+  <a href="#" id="share-fb" target="_blank" class="share-btn">Facebook</a>
+  <a href="#" id="share-tw" target="_blank" class="share-btn">Twitter/X</a>
+  <a href="#" id="share-wa" target="_blank" class="share-btn">WhatsApp</a>
+  <a href="#" id="share-rd" target="_blank" class="share-btn">Reddit</a>
+  <a href="#" id="share-in" target="_blank" class="share-btn">LinkedIn</a>
+  <a href="#" id="share-tg" target="_blank" class="share-btn">Telegram</a>
+  <a href="#" id="share-pi" target="_blank" class="share-btn">Pinterest</a>
+  <a href="#" id="share-bl" target="_blank" class="share-btn">Blogger</a>
+  <a href="#" id="share-ml" class="share-btn">Email</a>
+</div>
+
     <footer>
     <a href="contact.html">Contact Us</a> | 
     <a href="terms.html">Terms and Conditions</a> | 
     <a href="privacy.html">Privacy Policy</a> | 
     © 2026 MultiAlarms - All rights reserved.
 </footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const url = encodeURIComponent(window.location.href);
+  const title = encodeURIComponent(document.title);
+
+  // Facebook → uses sharer.php (still the standard direct-share method)
+  document.getElementById('share-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+
+  // X (Twitter) → official intent/tweet (x.com domain)
+  document.getElementById('share-tw').href = `https://x.com/intent/tweet?url=${url}&text=${title}`;
+
+  // WhatsApp → official wa.me format (text + space + URL)
+  document.getElementById('share-wa').href = `https://wa.me/?text=${title}%20${url}`;
+
+  // Reddit → modern submit link format
+  document.getElementById('share-rd').href = `https://www.reddit.com/submit?url=${url}&title=${title}`;
+
+  // LinkedIn → current reliable offsite share method (only ?url= is officially supported now)
+  document.getElementById('share-in').href = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+
+  // Telegram → correct share format (use text + url)
+  document.getElementById('share-tg').href = `https://t.me/share/url?url=${url}&text=${title}`;
+
+  // Pinterest → pin creation with url + description
+  document.getElementById('share-pi').href = `https://pinterest.com/pin/create/button/?url=${url}&description=${title}`;
+
+  // Blogger → updated to blogThis! format (still works)
+  document.getElementById('share-bl').href = `https://www.blogger.com/blog-this.g?u=${url}&n=${title}`;
+
+  // Email → mailto: remains simple and unchanged (but properly encoded)
+  document.getElementById('share-ml').href = `mailto:?subject=${title}&body=Check%20this%20out:%20${url}`;
+});
+</script>
+
 </body>
 </html>
