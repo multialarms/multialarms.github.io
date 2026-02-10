@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,9 +18,25 @@ body{
     background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
     color:#fff;
     min-height:100vh;
+    margin: 0;
     overflow-x:hidden;
 }
-#layout { display:flex; height:100vh; }
+#layout {
+    display: flex;
+    min-height: 100vh;
+    /* Optional but often helpful: */
+    flex-direction: row;
+    width: 100%;
+}
+
+/* Make the alarms area scrollable when there are many cards */
+#alarmContent {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;             /* ← key change – allows scrolling */
+    /* Optional: gives some breathing room at bottom */
+    padding-bottom: 140px;        /* reserve space ≈ footer + share height */
+}
  
 /* ===== CALCULATOR SIDEBAR ===== */
 .time-calculator-wrapper {
@@ -322,6 +339,54 @@ nav {
 .export-import-btn:hover {
     background:rgba(255,255,255,0.3);
 }
+
+footer {
+            text-align: center;
+            padding: 18px;
+            background-color: #1a3559;
+            color: #c0d4ff;
+            margin-top: 40px;
+            font-size: 0.95em;
+        }
+
+	/* Sets the initial color of links within the footer to white */
+	footer a {
+    	color: white;
+    	text-decoration: none; /* Optional: removes the default underline */
+	}
+
+	/* Changes the color of footer links to green when the cursor hovers over them */
+	footer a:hover {
+    	color: green;
+    	text-decoration: underline; /* Optional: adds an underline back on hover for accessibility */
+	}
+
+.share-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 20px;
+  border-top: 1px solid #ddd;
+}
+.share-btn {
+  padding: 8px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+/* Brand Colors */
+#share-fb { background: #3b5998; }
+#share-tw { background: #000000; }
+#share-wa { background: #25d366; }
+#share-rd { background: #ff4500; }
+#share-in { background: #0077b5; }
+#share-tg { background: #0088cc; }
+#share-pi { background: #bd081c; }
+#share-bl { background: #f57d00; }
+#share-ml { background: #777777; }
 	
 </style>
 </head>
@@ -397,6 +462,26 @@ nav {
         <div class="alarms-container" id="alarmsContainer"></div>
     </div>
 </div>
+
+<div class="share-container">
+  <a href="#" id="share-fb" target="_blank" class="share-btn">Facebook</a>
+  <a href="#" id="share-tw" target="_blank" class="share-btn">X/Twitter</a>
+  <a href="#" id="share-wa" target="_blank" class="share-btn">WhatsApp</a>
+  <a href="#" id="share-rd" target="_blank" class="share-btn">Reddit</a>
+  <a href="#" id="share-in" target="_blank" class="share-btn">LinkedIn</a>
+  <a href="#" id="share-tg" target="_blank" class="share-btn">Telegram</a>
+  <a href="#" id="share-pi" target="_blank" class="share-btn">Pinterest</a>
+  <a href="#" id="share-bl" target="_blank" class="share-btn">Blogger</a>
+  <a href="#" id="share-ml" class="share-btn">Email</a>
+</div>
+
+    <footer>
+    <a href="contact.html">Contact Us</a> | 
+    <a href="terms.html">Terms and Conditions</a> | 
+    <a href="privacy.html">Privacy Policy</a> | 
+    © 2026 MultiAlarms - All rights reserved.
+</footer>
+
 <script>
 /* ===== TIME CALCULATOR SCRIPT ===== */
 let rowCount=0,maxRows=100;
