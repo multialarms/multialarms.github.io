@@ -1105,20 +1105,8 @@ toggleAlarm(index) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-  const url = encodeURIComponent(window.location.href);
-  const title = encodeURIComponent(document.title);
-
-  document.getElementById('share-fb').href = `https://www.facebook.com{url}`;
-  document.getElementById('share-tw').href = `https://twitter.com{url}&text=${title}`;
-  document.getElementById('share-wa').href = `https://api.whatsapp.com{title}%20${url}`;
-  document.getElementById('share-rd').href = `https://www.reddit.com{url}&title=${title}`;
-  document.getElementById('share-in').href = `https://www.linkedin.com{url}`;
-  document.getElementById('share-tg').href = `https://t.me{url}&text=${title}`;
-  document.getElementById('share-pi').href = `https://pinterest.com{url}&description=${title}`;
-  document.getElementById('share-bl').href = `https://www.blogger.com{url}&n=${title}`;
-  document.getElementById('share-ml').href = `mailto:?subject=${title}&body=Check this out: ${url}`;
-});
+// Run it when the page is ready
+document.addEventListener('DOMContentLoaded', setupShareLinks);
 
 // ===== Bootstrapping =====
 let alarmSystem;
@@ -1130,6 +1118,49 @@ document.addEventListener('click',()=>{
         alarmSystem.audioContext.resume(); 
     }
 });
+
+function setupShareLinks() {
+    const pageUrl = encodeURIComponent(window.location.href);
+    const pageTitle = encodeURIComponent(document.title || "Multi Alarm Clock System + Time Calculator");
+    const pageDesc = encodeURIComponent("Check out this awesome multi alarm clock and time calculator tool!");
+
+    // Facebook
+    document.getElementById('share-fb').href = 
+        `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}`;
+
+    // X / Twitter
+    document.getElementById('share-tw').href = 
+        `https://twitter.com/intent/tweet?url=${pageUrl}&text=${pageTitle}`;
+
+    // WhatsApp
+    document.getElementById('share-wa').href = 
+        `https://api.whatsapp.com/send?text=${pageTitle}%20${pageUrl}`;
+
+    // Reddit
+    document.getElementById('share-rd').href = 
+        `https://reddit.com/submit?url=${pageUrl}&title=${pageTitle}`;
+
+    // LinkedIn
+    document.getElementById('share-in').href = 
+        `https://www.linkedin.com/sharing/share-offsite/?url=${pageUrl}`;
+
+    // Telegram
+    document.getElementById('share-tg').href = 
+        `https://t.me/share/url?url=${pageUrl}&text=${pageTitle}`;
+
+    // Pinterest
+    document.getElementById('share-pi').href = 
+        `https://pinterest.com/pin/create/button/?url=${pageUrl}&description=${pageTitle}`;
+
+    // Blogger (less common – links to create a new post)
+    document.getElementById('share-bl').href = 
+        `https://www.blogger.com/blog-this.g?u=${pageUrl}&n=${pageTitle}`;
+
+    // Email (mailto:)
+    document.getElementById('share-ml').href = 
+        `mailto:?subject=${pageTitle}&body=${pageDesc}%0A${pageUrl}`;
+}
+
 </script>
 </body>
 
