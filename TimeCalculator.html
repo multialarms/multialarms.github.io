@@ -1,13 +1,8 @@
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3434259072700063"
      crossorigin="anonymous"></script>
-	
     <meta charset="UTF-8">
     <title>Time Calculator</title>
     <style>
@@ -21,40 +16,36 @@
         header {
             background-color: #004080;
             color: white;
-            padding: 20px 15px; /* Increased padding for better spacing */
+            padding: 20px 15px;
             text-align: center;
             font-size: 24px;
             font-weight: bold;
         }
-nav {
-    margin-top: 15px;
-    display: flex;          /* Use flexbox for easy centering */
-    justify-content: center; 
-    gap: 10px;              /* Space between buttons */
-}
-
-nav a {
-    border: 1px solid green;
-    border-radius: 5px;
-    color: white;
-    padding: 5px 15px;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;        /* Slightly smaller than the title */
-    font-weight: normal;
-    transition: all 0.3s ease;
-}
-
-nav a:hover {
-    color: #00ff00;         /* Brighter green for better visibility on blue */
-    border-color: #00ff00;
-    background-color: rgba(255, 255, 255, 0.1); /* Subtle highlight */
-}
-
-
+        nav {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        nav a {
+            border: 1px solid green;
+            border-radius: 5px;
+            color: white;
+            padding: 5px 15px;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            font-weight: normal;
+            transition: all 0.3s ease;
+        }
+        nav a:hover {
+            color: #00ff00;
+            border-color: #00ff00;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
         .container {
             max-width: 1000px;
-            margin: 20px auto;
+            margin: 20px auto 5px auto;
             background: #e9f1ff;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -135,21 +126,68 @@ nav a:hover {
             display: flex;
             gap: 10px;
         }
+        .share-container {
+            max-width: 1000px;
+            margin: 0 auto 20px auto;
+            padding: 20px;
+            background: #1e3c72;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            border-top: 1px solid #4a6a9a;
+        }
+        .share-btn {
+            padding: 8px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        #share-fb { background: #3b5998; }
+        #share-tw { background: #000000; }
+        #share-wa { background: #25d366; }
+        #share-rd { background: #ff4500; }
+        #share-in { background: #0077b5; }
+        #share-tg { background: #0088cc; }
+        #share-pi { background: #bd081c; }
+        #share-bl { background: #f57d00; }
+        #share-ml { background: #777777; }
+        footer {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 18px;
+            background-color: #1e3c72;
+            color: #c0d4ff;
+            border-radius: 8px 8px 0 0;
+            font-size: 0.95em;
+        }
+        footer a {
+            color: white;
+            text-decoration: none;
+        }
+        footer a:hover {
+            color: green;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+
 <header>
     <div>Time Calculator</div>
     <nav>
         <a href="index.html">Home</a>
-		<a href="multialarms.html">Multi Alarms</a>
+        <a href="multialarms.html">Multi Alarms</a>
         <a href="TimeCalculator.html">Time Calculator</a>
-		<a href="https://www.youtube.com/@MultiAlarms" target="_blank" rel="noopener noreferrer">YouTube</a>
-		<a href="https://multialarms.blogspot.com/" target="_blank" rel="noopener noreferrer">Blog</a>
+        <a href="https://www.youtube.com/@MultiAlarms" target="_blank" rel="noopener noreferrer">YouTube</a>
+        <a href="https://multialarms.blogspot.com/" target="_blank" rel="noopener noreferrer">Blog</a>
     </nav>
 </header>
+
 <div class="container">
- 
     <div class="offset-section">
         <label>Offset Time:</label>
         <input type="number" id="offsetHours" min="0" max="99" placeholder="">h
@@ -157,8 +195,6 @@ nav a:hover {
         <input type="number" id="offsetSeconds" min="0" max="59" placeholder="">s
         <button id="clearOffset" class="button clear-button">Clear Offset</button>
     </div>
-
- 
     <table>
         <thead>
         <tr>
@@ -171,187 +207,243 @@ nav a:hover {
         <tbody id="timeRows">
         </tbody>
     </table>
- 
     <div class="button-container">
         <button id="addRow" class="button add-button">Add Row</button>
         <button id="clearAllRows" class="button clear-button">Clear All Rows</button>
     </div>
- 
-    <script>
-        let rowCount = 0;
-        const maxRows = 100;
- 
-        function createTimeInput(className, max) {
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.min = 0;
-            input.max = max;
-            input.placeholder = "";
-            input.classList.add(className);
- 
-            input.addEventListener('focus', function () {
-                this.select();
-            });
- 
-            input.addEventListener('input', function () {
-                if (this.value.length > 2) this.value = this.value.slice(0, 2);
-                if (parseInt(this.value) > max) this.value = max;
-            });
- 
-            return input;
-        }
- 
-        function setAutoTab(current, next) {
-            current.addEventListener('input', function () {
-                if (this.value.length === 2) {
-                    next.focus();
-                    next.select();
-                }
-            });
-        }
- 
-        function createTimeRow() {
-            if (rowCount >= maxRows) return;
- 
-            rowCount++;
-            const tbody = document.getElementById('timeRows');
-            const row = document.createElement('tr');
- 
-            const numCell = document.createElement('td');
-            numCell.textContent = rowCount;
-            row.appendChild(numCell);
- 
-            const inputCell = document.createElement('td');
-            const hIn = createTimeInput('hourInput', 99);
-            const mIn = createTimeInput('minuteInput', 59);
-            const sIn = createTimeInput('secondInput', 59);
- 
-            inputCell.append(hIn, document.createTextNode('h '), mIn, document.createTextNode('m '), sIn, document.createTextNode('s'));
-            setAutoTab(hIn, mIn);
-            setAutoTab(mIn, sIn);
- 
-            const resultCell = document.createElement('td');
-            const resultBox = document.createElement('div');
-            resultBox.classList.add('result-box');
-            resultBox.textContent = "";
-            resultCell.appendChild(resultBox);
- 
-            const actionCell = document.createElement('td');
-            const clearBtn = document.createElement('button');
-            clearBtn.textContent = "Clear";
-            clearBtn.classList.add('button', 'clear-button');
-            clearBtn.addEventListener('click', function () {
-                hIn.value = "";
-                mIn.value = "";
-                sIn.value = "";
-                resultBox.textContent = "";
-                hIn.focus();
-                hIn.select();
-            });
-            actionCell.appendChild(clearBtn);
- 
-            row.append(inputCell, resultCell, actionCell);
-            tbody.appendChild(row);
- 
-            sIn.addEventListener('input', function() {
-                if (this.value.length === 2) {
-                    const idx = Array.from(tbody.children).indexOf(row);
-                    if (idx + 1 < tbody.children.length) {
-                        const nextH = tbody.children[idx + 1].querySelector('.hourInput');
-                        nextH.focus();
-                        nextH.select();
-                    }
-                }
-            });
- 
-            updateResults();
-        }
- 
-        function updateResults() {
-            const offsetH = parseInt(document.getElementById('offsetHours').value) || 0;
-            const offsetM = parseInt(document.getElementById('offsetMinutes').value) || 0;
-            const offsetS = parseInt(document.getElementById('offsetSeconds').value) || 0;
- 
-            document.querySelectorAll('#timeRows tr').forEach(row => {
-                const hVal = row.querySelector('.hourInput').value;
-                const mVal = row.querySelector('.minuteInput').value;
-                const sVal = row.querySelector('.secondInput').value;
- 
-                if (hVal || mVal || sVal) {
-                    const h = parseInt(hVal) || 0;
-                    const m = parseInt(mVal) || 0;
-                    const s = parseInt(sVal) || 0;
- 
-                    let totalSeconds = (h + offsetH) * 3600 + (m + offsetM) * 60 + (s + offsetS);
-                    let finalH = Math.floor(totalSeconds / 3600);
-                    let rem = totalSeconds % 3600;
-                    let finalM = Math.floor(rem / 60);
-                    let finalS = rem % 60;
- 
-                    row.querySelector('.result-box').textContent =
-                        String(finalH).padStart(2, '0') + ":" +
-                        String(finalM).padStart(2, '0') + ":" +
-                        String(finalS).padStart(2, '0');
-                } else {
-                    row.querySelector('.result-box').textContent = "";
-                }
-            });
-        }
- 
-        // Add Row
-        document.getElementById('addRow').addEventListener('click', function() {
-            createTimeRow();
-            if (rowCount >= maxRows) this.disabled = true;
-        });
- 
-        // Clear All Rows
-        document.getElementById('clearAllRows').addEventListener('click', function () {
-            document.querySelectorAll('#timeRows tr').forEach(row => {
-                row.querySelector('.hourInput').value = "";
-                row.querySelector('.minuteInput').value = "";
-                row.querySelector('.secondInput').value = "";
-                row.querySelector('.result-box').textContent = "";
-            });
-        });
- 
-        // Clear Offset and recalc
-        document.getElementById('clearOffset').addEventListener('click', function () {
-            document.getElementById('offsetHours').value = "";
-            document.getElementById('offsetMinutes').value = "";
-            document.getElementById('offsetSeconds').value = "";
-            updateResults(); // Force recalculation with blank offset
-        });
- 
-        // Offset auto-tab + validation
-        const offsetInputs = [
-            document.getElementById('offsetHours'),
-            document.getElementById('offsetMinutes'),
-            document.getElementById('offsetSeconds')
-        ];
-        offsetInputs.forEach((input, idx, arr) => {
-            const maxVal = input.id.includes('Hours') ? 99 : 59;
-            input.addEventListener('focus', () => input.select());
-            input.addEventListener('input', function() {
-                if (this.value.length > 2) this.value = this.value.slice(0, 2);
-                if (parseInt(this.value) > maxVal) this.value = maxVal;
-                if (this.value.length === 2 && idx < arr.length - 1) {
-                    arr[idx + 1].focus();
-                    arr[idx + 1].select();
-                }
-            });
-        });
- 
-        document.addEventListener('input', updateResults);
- 
-        // Initial Rows
-        for (let i = 0; i < 20; i++) createTimeRow();
-    </script>
 </div>
+
+<div class="share-container">
+    <a href="#" id="share-fb" target="_blank" class="share-btn">Facebook</a>
+    <a href="#" id="share-tw" target="_blank" class="share-btn">X/Twitter</a>
+    <a href="#" id="share-wa" target="_blank" class="share-btn">WhatsApp</a>
+    <a href="#" id="share-rd" target="_blank" class="share-btn">Reddit</a>
+    <a href="#" id="share-in" target="_blank" class="share-btn">LinkedIn</a>
+    <a href="#" id="share-tg" target="_blank" class="share-btn">Telegram</a>
+    <a href="#" id="share-pi" target="_blank" class="share-btn">Pinterest</a>
+    <a href="#" id="share-bl" target="_blank" class="share-btn">Blogger</a>
+    <a href="#" id="share-ml" class="share-btn">Email</a>
+</div>
+
+<footer>
+    <a href="contact.html">Contact Us</a> | <a href="terms.html">Terms and Conditions</a> | <a href="privacy.html">Privacy Policy</a> | © 2026 MultiAlarms - All rights reserved.
+</footer>
+
+<script>
+    let rowCount = 0;
+    const maxRows = 100;
+
+    function createTimeInput(className, max) {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = 0;
+        input.max = max;
+        input.placeholder = "";
+        input.classList.add(className);
+        input.addEventListener('focus', function () {
+            this.select();
+        });
+        input.addEventListener('input', function () {
+            if (this.value.length > 2) this.value = this.value.slice(0, 2);
+            if (parseInt(this.value) > max) this.value = max;
+        });
+        return input;
+    }
+
+    function setAutoTab(current, next) {
+        current.addEventListener('input', function () {
+            if (this.value.length === 2) {
+                next.focus();
+                next.select();
+            }
+        });
+    }
+
+    function createTimeRow() {
+        if (rowCount >= maxRows) return;
+        rowCount++;
+        const tbody = document.getElementById('timeRows');
+        const row = document.createElement('tr');
+        const numCell = document.createElement('td');
+        numCell.textContent = rowCount;
+        row.appendChild(numCell);
+        const inputCell = document.createElement('td');
+        const hIn = createTimeInput('hourInput', 99);
+        const mIn = createTimeInput('minuteInput', 59);
+        const sIn = createTimeInput('secondInput', 59);
+        inputCell.append(hIn, document.createTextNode('h '), mIn, document.createTextNode('m '), sIn, document.createTextNode('s'));
+        setAutoTab(hIn, mIn);
+        setAutoTab(mIn, sIn);
+        const resultCell = document.createElement('td');
+        const resultBox = document.createElement('div');
+        resultBox.classList.add('result-box');
+        resultBox.textContent = "";
+        resultCell.appendChild(resultBox);
+        const actionCell = document.createElement('td');
+        const clearBtn = document.createElement('button');
+        clearBtn.textContent = "Clear";
+        clearBtn.classList.add('button', 'clear-button');
+        clearBtn.addEventListener('click', function () {
+            hIn.value = "";
+            mIn.value = "";
+            sIn.value = "";
+            resultBox.textContent = "";
+            hIn.focus();
+            hIn.select();
+        });
+        actionCell.appendChild(clearBtn);
+        row.append(inputCell, resultCell, actionCell);
+        tbody.appendChild(row);
+        sIn.addEventListener('input', function() {
+            if (this.value.length === 2) {
+                const idx = Array.from(tbody.children).indexOf(row);
+                if (idx + 1 < tbody.children.length) {
+                    const nextH = tbody.children[idx + 1].querySelector('.hourInput');
+                    nextH.focus();
+                    nextH.select();
+                }
+            }
+        });
+        updateResults();
+    }
+
+    function updateResults() {
+        const offsetH = parseInt(document.getElementById('offsetHours').value) || 0;
+        const offsetM = parseInt(document.getElementById('offsetMinutes').value) || 0;
+        const offsetS = parseInt(document.getElementById('offsetSeconds').value) || 0;
+        document.querySelectorAll('#timeRows tr').forEach(row => {
+            const hVal = row.querySelector('.hourInput').value;
+            const mVal = row.querySelector('.minuteInput').value;
+            const sVal = row.querySelector('.secondInput').value;
+            if (hVal || mVal || sVal) {
+                const h = parseInt(hVal) || 0;
+                const m = parseInt(mVal) || 0;
+                const s = parseInt(sVal) || 0;
+                let totalSeconds = (h + offsetH) * 3600 + (m + offsetM) * 60 + (s + offsetS);
+                let finalH = Math.floor(totalSeconds / 3600);
+                let rem = totalSeconds % 3600;
+                let finalM = Math.floor(rem / 60);
+                let finalS = rem % 60;
+                row.querySelector('.result-box').textContent =
+                    String(finalH).padStart(2, '0') + ":" +
+                    String(finalM).padStart(2, '0') + ":" +
+                    String(finalS).padStart(2, '0');
+            } else {
+                row.querySelector('.result-box').textContent = "";
+            }
+        });
+    }
+
+    document.getElementById('addRow').addEventListener('click', function() {
+        createTimeRow();
+        if (rowCount >= maxRows) this.disabled = true;
+    });
+
+    document.getElementById('clearAllRows').addEventListener('click', function () {
+        document.querySelectorAll('#timeRows tr').forEach(row => {
+            row.querySelector('.hourInput').value = "";
+            row.querySelector('.minuteInput').value = "";
+            row.querySelector('.secondInput').value = "";
+            row.querySelector('.result-box').textContent = "";
+        });
+    });
+
+    document.getElementById('clearOffset').addEventListener('click', function () {
+        document.getElementById('offsetHours').value = "";
+        document.getElementById('offsetMinutes').value = "";
+        document.getElementById('offsetSeconds').value = "";
+        updateResults();
+    });
+
+    const offsetInputs = [
+        document.getElementById('offsetHours'),
+        document.getElementById('offsetMinutes'),
+        document.getElementById('offsetSeconds')
+    ];
+    offsetInputs.forEach((input, idx, arr) => {
+        const maxVal = input.id.includes('Hours') ? 99 : 59;
+        input.addEventListener('focus', () => input.select());
+        input.addEventListener('input', function() {
+            if (this.value.length > 2) this.value = this.value.slice(0, 2);
+            if (parseInt(this.value) > maxVal) this.value = maxVal;
+            if (this.value.length === 2 && idx < arr.length - 1) {
+                arr[idx + 1].focus();
+                arr[idx + 1].select();
+            }
+        });
+    });
+
+    const offsetLast = document.getElementById('offsetSeconds');
+    offsetLast.addEventListener('input', function() {
+         if (this.value.length === 2) {
+            const firstRowHour = document.querySelector('#timeRows tr:first-child .hourInput');
+            if (firstRowHour) {
+                firstRowHour.focus();
+                firstRowHour.select();
+            }
+        }
+    });
+
+    function setupLastRowAutoAdd() {
+        document.querySelectorAll('#timeRows .secondInput').forEach(el => {
+            el.removeEventListener('input', handleLastSecondsInput);
+        });
+        const allSeconds = document.querySelectorAll('#timeRows .secondInput');
+        if (allSeconds.length === 0) return;
+        const lastSeconds = allSeconds[allSeconds.length - 1];
+        lastSeconds.addEventListener('input', handleLastSecondsInput);
+    }
+
+    function handleLastSecondsInput() {
+        if (this.value.length === 2) {
+            const allSecondsNow = document.querySelectorAll('#timeRows .secondInput');
+            const currentLast = allSecondsNow[allSecondsNow.length - 1];
+            if (this === currentLast) {
+                document.getElementById('addRow').click();
+                setTimeout(() => {
+                    const newSeconds = document.querySelectorAll('#timeRows .secondInput');
+                    if (newSeconds.length > allSecondsNow.length) {
+                        const newFirstHour = document.querySelector('#timeRows tr:last-child .hourInput');
+                        if (newFirstHour) {
+                            newFirstHour.focus();
+                            newFirstHour.select();
+                        }
+                    }
+                }, 0);
+            }
+        }
+    }
+
+    setupLastRowAutoAdd();
+
+    const originalAddRow = createTimeRow;
+    createTimeRow = function() {
+        originalAddRow.apply(this, arguments);
+        setupLastRowAutoAdd();
+        updateResults();
+    };
+
+    document.addEventListener('input', updateResults);
+
+    for (let i = 0; i < 15; i++) createTimeRow();
+
+    function setupShareLinks() {
+        const pageUrl = encodeURIComponent(window.location.href);
+        const pageTitle = encodeURIComponent(document.title || "Multi Alarm Clock System + Time Calculator");
+        const pageDesc = encodeURIComponent("Check out this awesome multi alarm clock and time calculator tool!");
+        document.getElementById('share-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}`;
+        document.getElementById('share-tw').href = `https://twitter.com/intent/tweet?url=${pageUrl}&text=${pageTitle}`;
+        document.getElementById('share-wa').href = `https://api.whatsapp.com/send?text=${pageTitle}%20${pageUrl}`;
+        document.getElementById('share-rd').href = `https://reddit.com/submit?url=${pageUrl}&title=${pageTitle}`;
+        document.getElementById('share-in').href = `https://www.linkedin.com/sharing/share-offsite/?url=${pageUrl}`;
+        document.getElementById('share-tg').href = `https://t.me/share/url?url=${pageUrl}&text=${pageTitle}`;
+        document.getElementById('share-pi').href = `https://pinterest.com/pin/create/button/?url=${pageUrl}&description=${pageTitle}`;
+        document.getElementById('share-bl').href = `https://www.blogger.com/blog-this.g?u=${pageUrl}&n=${pageTitle}`;
+        document.getElementById('share-ml').href = `mailto:?subject=${pageTitle}&body=${pageDesc}%0A${pageUrl}`;
+    }
+
+    setupShareLinks();
+</script>
+
 </body>
-
 </html>
-
-
-
-
-
