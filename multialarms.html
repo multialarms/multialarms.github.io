@@ -33,39 +33,102 @@
         #layout {
             display: flex;
             min-height: 100vh;
-            /* Optional but often helpful: */
             flex-direction: row;
             width: 100%;
+            position: relative;
         }
 
-        /* Make the alarms area scrollable when there are many cards */
         #alarmContent {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-            /* ← key change – allows scrolling */
-            /* Optional: gives some breathing room at bottom */
             padding-bottom: 140px;
-            /* reserve space ≈ footer + share height */
+            min-width: 0;
         }
 
-        /* ===== CALCULATOR SIDEBAR ===== */
         .time-calculator-wrapper {
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(10px);
             border-right: 2px solid rgba(255, 255, 255, 0.3);
             padding: 15px;
             min-width: 250px;
-            max-width: 500px;
             width: 400px;
+            max-width: 50vw;
             overflow-y: auto;
-            transition: width 0.1s;
+            overflow-x: hidden;
+            transition: width 0.25s ease, min-width 0.25s ease, padding 0.25s ease, opacity 0.2s ease;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .time-calculator-wrapper.collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            border-right: none;
+            opacity: 0;
+            pointer-events: none;
         }
 
         .drag-bar {
-            width: 5px;
+            width: 6px;
             cursor: col-resize;
             background: rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 5;
+            transition: background 0.2s;
+        }
+
+        .drag-bar:hover,
+        .drag-bar.dragging {
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        .drag-bar.hidden {
+            display: none;
+        }
+
+        .calc-toggle-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 22px;
+            height: 48px;
+            background: rgba(30, 60, 114, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            z-index: 20;
+            transition: background 0.2s, left 0.25s ease, right 0.25s ease;
+            user-select: none;
+        }
+
+        .calc-toggle-btn:hover {
+            background: rgba(42, 82, 152, 1);
+        }
+
+        #calcCollapseBtn {
+            right: -11px;
+            border-radius: 0 6px 6px 0;
+        }
+
+        #calcExpandBtn {
+            left: 0;
+            border-radius: 0 6px 6px 0;
+            display: none;
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+
+        #calcExpandBtn.visible {
+            display: flex;
         }
 
         .time-calculator-wrapper header {
@@ -160,7 +223,6 @@
             gap: 5px;
         }
 
-        /* ===== ORIGINAL ALARM CLOCK CSS (UNMODIFIED) ===== */
         .header {
             text-align: center;
             margin-bottom: 10px;
@@ -192,18 +254,15 @@
 
         .header-description {
             font-size: 1rem;
-            /* Smaller than the 2.5em title */
             color: rgba(255, 255, 255, 0.85);
             line-height: 1.6;
             max-width: 800px;
             margin: 4px auto 0 auto;
-            /* Adds 4px space below the title */
             font-weight: 300;
         }
 
         .reset-instruction {
             margin-top: 15px;
-            /* Adds space before the final sentence */
             font-style: italic;
             opacity: 0.9;
         }
@@ -228,6 +287,7 @@
         .current-time {
             font-size: 1.2em;
             opacity: 0.9;
+            margin-top: 8px;
         }
 
         .alarms-container {
@@ -238,7 +298,6 @@
             margin: 0 auto;
         }
 
-        /* include full original alarm CSS here from your working HTML */
         .alarm-card {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
@@ -248,6 +307,21 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             position: relative;
+            cursor: grab;
+        }
+
+        .alarm-card:active {
+            cursor: grabbing;
+        }
+
+        .alarm-card.dragging {
+            opacity: 0.45;
+            transform: scale(0.98);
+        }
+
+        .alarm-card.drag-over {
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.45);
         }
 
         .alarm-card:hover {
@@ -267,15 +341,8 @@
         }
 
         @keyframes ringPulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.02);
-            }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
         }
 
         @keyframes flashAlarm {
@@ -283,12 +350,10 @@
                 background-color: rgba(255, 87, 34, 0.3);
                 box-shadow: 0 0 15px #FF5722;
             }
-
             50% {
                 background-color: rgba(255, 255, 0, 0.4);
                 box-shadow: 0 0 20px #FFD700;
             }
-
             100% {
                 background-color: rgba(255, 87, 34, 0.3);
                 box-shadow: 0 0 15px #FF5722;
@@ -306,13 +371,23 @@
         .alarm-number {
             font-size: 1.2em;
             font-weight: bold;
-            /* Use a linear gradient for the multi-tone effect */
             background: linear-gradient(to bottom, #f9a32c, #eb7300);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
             color: #FFD700;
-            /* Fallback for browsers that don't support background-clip: text */
+        }
+
+        .drag-handle {
+            cursor: grab;
+            opacity: 0.55;
+            font-size: 1.1em;
+            user-select: none;
+            padding: 2px 6px;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
         }
 
         .alarm-toggle {
@@ -538,34 +613,23 @@
 
         nav {
             margin-top: 15px;
-            /* Moves the navigation lower */
         }
 
         nav a {
             border: 1px solid green;
-            /* Thin green border */
             border-radius: 5px;
-            /* Rounded corners */
             color: white;
-            /* White text */
             padding: 5px 10px;
-            /* Space inside the link */
             margin-right: 10px;
-            /* Space between links */
             text-decoration: none;
-            /* Remove underline */
             display: inline-block;
-            /* Allow padding/border styling */
             transition: color 0.3s ease, border-color 0.3s ease, font-weight 0.3s ease;
         }
 
         nav a:hover {
             color: green;
-            /* Text turns green on hover */
             font-weight: bold;
-            /* Bold text on hover */
             border-color: green;
-            /* Border changes to green on hover */
         }
 
         .export-import-btn {
@@ -593,18 +657,14 @@
             font-size: 0.95em;
         }
 
-        /* Sets the initial color of links within the footer to white */
         footer a {
             color: white;
             text-decoration: none;
-            /* Optional: removes the default underline */
         }
 
-        /* Changes the color of footer links to green when the cursor hovers over them */
         footer a:hover {
             color: green;
             text-decoration: underline;
-            /* Optional: adds an underline back on hover for accessibility */
         }
 
         .share-container {
@@ -625,48 +685,227 @@
             font-weight: bold;
         }
 
-        /* Brand Colors */
-        #share-fb {
-            background: #3b5998;
+        #share-fb { background: #3b5998; }
+        #share-tw { background: #000000; }
+        #share-wa { background: #25d366; }
+        #share-rd { background: #ff4500; }
+        #share-in { background: #0077b5; }
+        #share-tg { background: #0088cc; }
+        #share-pi { background: #bd081c; }
+        #share-bl { background: #f57d00; }
+        #share-ml { background: #777777; }
+
+        #globalMenuBtn {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.45);
+            background: rgba(15, 30, 60, 0.9);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        #share-tw {
-            background: #000000;
+        #globalMenuBtn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
         }
 
-        #share-wa {
-            background: #25d366;
+        #globalMenuBtn img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
         }
 
-        #share-rd {
-            background: #ff4500;
+        #globalMenuOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
         }
 
-        #share-in {
-            background: #0077b5;
+        #globalMenuOverlay.open {
+            display: flex;
         }
 
-        #share-tg {
-            background: #0088cc;
+        #globalMenuPanel {
+            background: linear-gradient(145deg, #1e3c72, #16325c);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
+            padding: 28px 32px;
+            width: min(420px, 92vw);
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+            position: relative;
+            color: white;
         }
 
-        #share-pi {
-            background: #bd081c;
+        #globalMenuPanel h2 {
+            font-size: 1.45em;
+            font-weight: 400;
+            margin-bottom: 18px;
+            text-align: center;
+            letter-spacing: 1px;
         }
 
-        #share-bl {
-            background: #f57d00;
+        #globalMenuPanel .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 22px;
+            cursor: pointer;
+            line-height: 1;
         }
 
-        #share-ml {
-            background: #777777;
+        #globalMenuPanel .close-btn:hover {
+            color: white;
+        }
+
+        .global-section {
+            margin-bottom: 22px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .global-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            opacity: 0.95;
+        }
+
+        .global-section select,
+        .global-section input[type="file"] {
+            width: 100%;
+            padding: 9px 10px;
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.12);
+            color: black;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .global-section .apply-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 7px;
+            background: #4CAF50;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .global-section .apply-btn:hover {
+            background: #43a047;
+        }
+
+        .global-section .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .global-section .toggle-row label {
+            margin-bottom: 0;
+        }
+
+        .global-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .global-actions button {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 7px;
+            background: rgba(255, 255, 255, 0.18);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .global-actions button:hover {
+            background: rgba(255, 255, 255, 0.28);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch .slider-round {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .switch .slider-round:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .switch input:checked + .slider-round {
+            background-color: #4CAF50;
+        }
+
+        .switch input:checked + .slider-round:before {
+            transform: translateX(24px);
         }
     </style>
 </head>
 <body>
     <div id="layout">
-        <!-- Calculator -->
         <div class="time-calculator-wrapper" id="calcWrapper">
+            <button class="calc-toggle-btn" id="calcCollapseBtn" title="Close Time Calculator">◀</button>
             <header>Time Calculator</header>
             <div class="container">
                 <div class="offset-section">
@@ -694,26 +933,22 @@
                 </div>
             </div>
         </div>
-        <!-- Drag bar -->
         <div class="drag-bar" id="dragBar"></div>
-        <!-- Alarm Clock -->
-        <div id="alarmContent" style="flex:1; padding:20px;">
+        <button class="calc-toggle-btn" id="calcExpandBtn" title="Open Time Calculator">▶</button>
+
+        <div id="alarmContent">
             <div class="header">
                 <input type="text" id="pageTitle" class="header-title">
-                <div class="header">
-                    <!-- New Description Section -->
-                    <div class="header-description">
-                        <p>
-                            No need to sign up or create an account. The Multi Alarm Clock System is designed to automatically save your alarm clock settings in your browser. When you return, all of your settings from your last visit to Multi Alarms will still be here.
-                        </p>
-                        <p class="reset-instruction">
-                            Want to go back to default settings? Simply clear your browser cache and refresh the page.
-                        </p>
-                    </div>
-                    <div id="currentTime" class="current-time"></div>
+                <div class="header-description">
+                    <p>
+                        No need to sign up or create an account. The Multi Alarm Clock System is designed to automatically save your alarm clock settings in your browser. When you return, all of your settings from your last visit to Multi Alarms will still be here.
+                    </p>
+                    <p class="reset-instruction">
+                        Want to go back to default settings? Simply clear your browser cache and refresh the page.
+                    </p>
                 </div>
+                <div id="currentTime" class="current-time"></div>
                 <button id="undoButton" onclick="alarmSystem.undoLastRemoval()">Undo</button>
-                <div class="current-time" id="currentTime"></div>
                 <div>
                     <button class="export-import-btn" onclick="alarmSystem.exportSettings()">Export Settings</button>
                     <button class="export-import-btn" onclick="document.getElementById('importFileInput').click()">Import Settings</button>
@@ -730,6 +965,67 @@
             <div class="alarms-container" id="alarmsContainer"></div>
         </div>
     </div>
+
+    <button id="globalMenuBtn" title="Global Menu" aria-label="Open Global Menu">
+        <img src="data:image/png;base64,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" alt="MultiAlarms">
+    </button>
+
+    <div id="globalMenuOverlay">
+        <div id="globalMenuPanel">
+            <button class="close-btn" id="globalMenuClose" title="Close">×</button>
+            <h2>Global Menu</h2>
+
+            <div class="global-section">
+                <label>Global Alarm Sound</label>
+                <select id="globalSoundSelect">
+                    <option value="Beep">Beep</option>
+                    <option value="Chime">Chime</option>
+                    <option value="Alert">Alert</option>
+                    <option value="Buzz">Buzz</option>
+                    <option value="Ding">Ding</option>
+                    <option value="Horn">Horn</option>
+                    <option value="Tone">Tone</option>
+                    <option value="Custom">Custom</option>
+                </select>
+                <input type="file" id="globalCustomSoundInput" accept="audio/*" style="display:none">
+                <button class="apply-btn" id="applyGlobalSoundBtn">Apply Sound to All Alarms</button>
+            </div>
+
+            <div class="global-section">
+                <label>Global Auto-Snooze</label>
+                <select id="globalAutoSnoozeSelect">
+                    <option value="10">10 seconds</option>
+                    <option value="15">15 seconds</option>
+                    <option value="20">20 seconds</option>
+                    <option value="30">30 seconds</option>
+                    <option value="45">45 seconds</option>
+                    <option value="60">1 minute</option>
+                    <option value="none">No auto-snooze</option>
+                </select>
+                <button class="apply-btn" id="applyGlobalAutoSnoozeBtn">Apply Auto-Snooze to All Alarms</button>
+            </div>
+
+            <div class="global-section">
+                <div class="toggle-row">
+                    <label for="autoScrollToggle">Auto-scroll to ringing alarm</label>
+                    <label class="switch">
+                        <input type="checkbox" id="autoScrollToggle" checked>
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="global-section">
+                <label>Import / Export Settings</label>
+                <div class="global-actions">
+                    <button onclick="alarmSystem.exportSettings()">Export Settings</button>
+                    <button onclick="document.getElementById('importFileInputGlobal').click()">Import Settings</button>
+                </div>
+                <input type="file" id="importFileInputGlobal" accept=".json" style="display:none" onchange="alarmSystem.importSettings(this.files[0])">
+            </div>
+        </div>
+    </div>
+
     <div class="share-container">
         <a href="#" id="share-fb" target="_blank" class="share-btn">Facebook</a>
         <a href="#" id="share-tw" target="_blank" class="share-btn">X/Twitter</a>
@@ -745,6 +1041,7 @@
         <a href="contact.html">Contact Us</a> | <a href="terms.html">Terms and Conditions</a> | <a href="privacy.html">Privacy Policy</a> | © 2026 MultiAlarms - All rights reserved.
     </footer>
     <script>
+
         /* ===== TIME CALCULATOR SCRIPT ===== */
         let rowCount = 0,
             maxRows = 100;
@@ -852,13 +1149,11 @@
         };
         document.addEventListener('input', updateResults);
         for (let i = 0; i < 10; i++) createTimeRow();
-        // ===== Auto Tab for Offset inputs =====
         const offsetHours = document.getElementById('offsetHours');
         const offsetMinutes = document.getElementById('offsetMinutes');
         const offsetSeconds = document.getElementById('offsetSeconds');
         setAutoTab(offsetHours, offsetMinutes);
         setAutoTab(offsetMinutes, offsetSeconds);
-        // After offsetSeconds is filled, go to first row's hour input
         offsetSeconds.addEventListener('input', function() {
             if (this.value.length === 2) {
                 const firstHourInput = document.querySelector('#timeRows tr:first-child .hourInput');
@@ -868,13 +1163,13 @@
                 }
             }
         });
-        // ===== PRINT CALCULATOR with values, darker/larger font for paper =====
         document.getElementById('printCalc').addEventListener('click', function() {
             const calcClone = document.getElementById('calcWrapper').cloneNode(true);
-            // Preserve input values in the clone
             calcClone.querySelectorAll('input').forEach(input => {
                 input.setAttribute('value', input.value);
             });
+            const collapseBtn = calcClone.querySelector('#calcCollapseBtn');
+            if (collapseBtn) collapseBtn.remove();
             const printWindow = window.open('', '', 'width=800,height=600');
             printWindow.document.write('<html><head><title>Time Calculator</title>');
             const styles = Array.from(document.styleSheets).map(styleSheet => {
@@ -884,7 +1179,7 @@
                     return '';
                 }
             }).join('\n');
-            printWindow.document.write('<style>' + styles + ` /* === PRINT OVERRIDES FOR READABILITY === */ body { background: white !important; color: black !important; font-size: 10pt !important; font-family: Arial, sans-serif !important; } table, th, td { color: black !important; border-color: black !important; border-width: 2px !important; } input { color: black !important; font-size: 10pt !important; border: 1px solid black !important; background: white !important; } .result-box { color: black !important; font-size: 10pt !important; border-color: black !important; background: white !important; } th { background: #ddd !important; font-weight: bold !important; } ` + '</style>');
+            printWindow.document.write('<style>' + styles + ` body { background: white !important; color: black !important; font-size: 10pt !important; font-family: Arial, sans-serif !important; } table, th, td { color: black !important; border-color: black !important; border-width: 2px !important; } input { color: black !important; font-size: 10pt !important; border: 1px solid black !important; background: white !important; } .result-box { color: black !important; font-size: 10pt !important; border-color: black !important; background: white !important; } th { background: #ddd !important; font-weight: bold !important; } .calc-toggle-btn { display: none !important; } ` + '</style>');
             printWindow.document.write('</head><body>');
             printWindow.document.write(calcClone.outerHTML);
             printWindow.document.write('</body></html>');
@@ -893,26 +1188,93 @@
             printWindow.print();
             printWindow.close();
         });
-        /* ===== DRAG RESIZE ===== */
-        const dragBar = document.getElementById('dragBar'),
-            calcWrapper = document.getElementById('calcWrapper');
+
+        /* ===== CALCULATOR COLLAPSE / EXPAND + DRAG RESIZE ===== */
+        const dragBar = document.getElementById('dragBar');
+        const calcWrapper = document.getElementById('calcWrapper');
+        const calcCollapseBtn = document.getElementById('calcCollapseBtn');
+        const calcExpandBtn = document.getElementById('calcExpandBtn');
+
+        let calcCollapsed = localStorage.getItem('calcCollapsed') === 'true';
+        let lastCalcWidth = parseInt(localStorage.getItem('calcWidth'), 10) || 400;
+
+        function applyCalcState() {
+            if (calcCollapsed) {
+                calcWrapper.classList.add('collapsed');
+                dragBar.classList.add('hidden');
+                calcExpandBtn.classList.add('visible');
+            } else {
+                calcWrapper.classList.remove('collapsed');
+                dragBar.classList.remove('hidden');
+                calcExpandBtn.classList.remove('visible');
+                const maxW = Math.floor(window.innerWidth * 0.5);
+                const w = Math.min(Math.max(lastCalcWidth, 250), maxW);
+                calcWrapper.style.width = w + 'px';
+            }
+        }
+
+        function collapseCalc() {
+            const currentW = calcWrapper.getBoundingClientRect().width;
+            if (currentW > 50) lastCalcWidth = Math.round(currentW);
+            localStorage.setItem('calcWidth', lastCalcWidth);
+            calcCollapsed = true;
+            localStorage.setItem('calcCollapsed', 'true');
+            applyCalcState();
+        }
+
+        function expandCalc() {
+            calcCollapsed = false;
+            localStorage.setItem('calcCollapsed', 'false');
+            applyCalcState();
+        }
+
+        calcCollapseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            collapseCalc();
+        });
+        calcExpandBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            expandCalc();
+        });
+
+        applyCalcState();
+
         dragBar.addEventListener('mousedown', e => {
             e.preventDefault();
+            dragBar.classList.add('dragging');
             document.addEventListener('mousemove', resize);
             document.addEventListener('mouseup', stopResize);
         });
 
         function resize(e) {
-            const w = e.clientX;
-            if (w >= 250 && w <= 600) calcWrapper.style.width = w + 'px';
+            const maxW = Math.floor(window.innerWidth * 0.5);
+            let w = e.clientX;
+            if (w < 250) w = 250;
+            if (w > maxW) w = maxW;
+            calcWrapper.style.width = w + 'px';
+            lastCalcWidth = w;
         }
 
         function stopResize() {
+            dragBar.classList.remove('dragging');
             document.removeEventListener('mousemove', resize);
+            document.removeEventListener('mouseup', stopResize);
+            localStorage.setItem('calcWidth', lastCalcWidth);
         }
-        /* ===== FULL ORIGINAL MULTI ALARM CLOCK JS BELOW ===== */
-        /* Your full original Alarm Clock JS from the working HTML you pasted earlier goes here – EXACTLY as it was */
-        // ===== IndexedDB Helper for Custom Audio Storage =====
+
+        window.addEventListener('resize', () => {
+            if (!calcCollapsed) {
+                const maxW = Math.floor(window.innerWidth * 0.5);
+                const current = calcWrapper.getBoundingClientRect().width;
+                if (current > maxW) {
+                    calcWrapper.style.width = maxW + 'px';
+                    lastCalcWidth = maxW;
+                    localStorage.setItem('calcWidth', lastCalcWidth);
+                }
+            }
+        });
+
+        /* ===== ALARM SYSTEM ===== */
         class AudioDB {
             constructor() {
                 this.dbName = 'AlarmCustomSounds';
@@ -950,7 +1312,7 @@
             }
         }
         const audioDB = new AudioDB();
-        // ===== Alarm System =====
+
         class MasterControlAlarms {
             constructor() {
                 this.alarms = [];
@@ -968,8 +1330,11 @@
                 };
                 this.activeAlarms = new Set();
                 this.soundLoops = {};
+                this.autoScrollEnabled = localStorage.getItem('autoScrollToRinging') !== 'false';
+                this.dragSrcIndex = null;
                 this.init();
             }
+
             async init() {
                 await audioDB.init();
                 this.initAudioContext();
@@ -983,16 +1348,19 @@
                     localStorage.setItem('pageTitle', e.target.value);
                 });
                 this.setupUndoShortcut();
+                this.setupGlobalMenu();
+                this.setupDragAndDrop();
             }
-            /* ---------- Import / Export Settings Methods ---------- */
+
             exportSettings() {
                 const settings = {
                     pageTitle: localStorage.getItem('pageTitle'),
-                    alarms: localStorage.getItem('masterControlAlarms')
+                    alarms: localStorage.getItem('masterControlAlarms'),
+                    autoScrollToRinging: localStorage.getItem('autoScrollToRinging'),
+                    calcCollapsed: localStorage.getItem('calcCollapsed'),
+                    calcWidth: localStorage.getItem('calcWidth')
                 };
-                const blob = new Blob([JSON.stringify(settings)], {
-                    type: 'application/json'
-                });
+                const blob = new Blob([JSON.stringify(settings)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -1000,6 +1368,7 @@
                 a.click();
                 URL.revokeObjectURL(url);
             }
+
             importSettings(file) {
                 if (!file) return;
                 const reader = new FileReader();
@@ -1008,6 +1377,9 @@
                         const data = JSON.parse(e.target.result);
                         if (data.pageTitle) localStorage.setItem('pageTitle', data.pageTitle);
                         if (data.alarms) localStorage.setItem('masterControlAlarms', data.alarms);
+                        if (data.autoScrollToRinging !== undefined) localStorage.setItem('autoScrollToRinging', data.autoScrollToRinging);
+                        if (data.calcCollapsed !== undefined) localStorage.setItem('calcCollapsed', data.calcCollapsed);
+                        if (data.calcWidth !== undefined) localStorage.setItem('calcWidth', data.calcWidth);
                         alert('Settings imported! Reloading...');
                         location.reload();
                     } catch (err) {
@@ -1016,18 +1388,20 @@
                 };
                 reader.readAsText(file);
             }
-            /* ------------------------------------------------------- */
+
             initAudioContext() {
                 try {
-                    this.audioContext = new(window.AudioContext || window.webkitAudioContext)();
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 } catch (e) {
                     console.warn('Audio context not supported');
                 }
             }
+
             loadTitle() {
                 const saved = localStorage.getItem('pageTitle') || 'MULTI ALARM CLOCK SYSTEM';
                 document.getElementById('pageTitle').value = saved;
             }
+
             async loadAlarms() {
                 try {
                     const savedAlarms = localStorage.getItem('masterControlAlarms');
@@ -1039,7 +1413,6 @@
                                 id: i,
                                 enabled: false,
                                 time: '09:00:00',
-                                // Updated default to include :00 for consistency
                                 days: [false, false, false, false, false, false, false],
                                 description: `Alarm ${i+1}`,
                                 sound: 'Beep',
@@ -1056,7 +1429,6 @@
                     } else {
                         this.alarms = parsedData;
                     }
-                    // Normalize all alarm times to include seconds
                     this.alarms.forEach(alarm => {
                         if (alarm.time && alarm.time.length === 5) {
                             alarm.time += ':00';
@@ -1064,22 +1436,19 @@
                         if (!alarm.mode) alarm.mode = 'recurring';
                         if (!alarm.specificDate) alarm.specificDate = null;
                     });
-                    // NEW: Clear any stale ringing state on load/refresh
                     this.alarms.forEach(alarm => {
                         if (alarm.isRinging) {
                             alarm.isRinging = false;
-                            // Optional: also clear lastTriggered if you want to be extra clean
-                            // alarm.lastTriggered = null;
                         }
                     });
                     this.saveAlarms();
-                    // Persist the cleared state immediately
                     this.startAlarmChecker();
                 } catch (error) {
                     console.error("Error loading alarms:", error);
                     this.alarms = [];
                 }
             }
+
             async loadCustomSoundsFromDB() {
                 for (let alarm of this.alarms) {
                     if (alarm.sound === 'Custom') {
@@ -1088,29 +1457,37 @@
                     }
                 }
             }
+
             saveAlarms() {
                 localStorage.setItem('masterControlAlarms', JSON.stringify(this.alarms));
             }
+
             createAlarmCards() {
                 const container = document.getElementById('alarmsContainer');
                 container.innerHTML = '';
                 this.alarms.forEach((alarm, index) => {
                     const card = document.createElement('div');
-                    card.className = `alarm-card ${alarm.enabled?'active':''}`;
+                    card.className = `alarm-card ${alarm.enabled ? 'active' : ''}`;
                     card.id = `alarm-${index}`;
+                    card.dataset.index = index;
+                    card.draggable = true;
+
                     card.innerHTML = `
                     <div class="alarm-header">
-                        <div class="alarm-number">ALARM ${index+1}</div>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span class="drag-handle" title="Drag to reorder">☰</span>
+                            <div class="alarm-number">ALARM ${index+1}</div>
+                        </div>
                         <label class="alarm-toggle">
-                            <input type="checkbox" ${alarm.enabled?'checked':''} onchange="alarmSystem.toggleAlarm(${index})">
+                            <input type="checkbox" ${alarm.enabled ? 'checked' : ''} onchange="alarmSystem.toggleAlarm(${index})">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <input type="text" class="alarm-description" value="${alarm.description}" onchange="alarmSystem.updateDescription(${index}, this.value)">
                     <div class="mode-container">
                         <select class="mode-select" onchange="alarmSystem.updateMode(${index}, this.value)">
-                            <option value="recurring" ${alarm.mode==='recurring'?'selected':''}>Recurring Weekly</option>
-                            <option value="one-time" ${alarm.mode==='one-time'?'selected':''}>One-time Specific Date</option>
+                            <option value="recurring" ${alarm.mode === 'recurring' ? 'selected' : ''}>Recurring Weekly</option>
+                            <option value="one-time" ${alarm.mode === 'one-time' ? 'selected' : ''}>One-time Specific Date</option>
                         </select>
                     </div>
                     <div class="time-day-container">
@@ -1118,7 +1495,7 @@
                         ${alarm.mode === 'recurring' ? 
                             `<div class="days-grid">
                                 ${['S','M','T','W','T','F','S'].map((d,dayIndex)=>`
-                                    <input type="checkbox" class="day-checkbox" id="day-${index}-${dayIndex}" ${alarm.days[dayIndex]?'checked':''} onchange="alarmSystem.updateDay(${index}, ${dayIndex}, this.checked)">
+                                    <input type="checkbox" class="day-checkbox" id="day-${index}-${dayIndex}" ${alarm.days[dayIndex] ? 'checked' : ''} onchange="alarmSystem.updateDay(${index}, ${dayIndex}, this.checked)">
                                     <label class="day-label" for="day-${index}-${dayIndex}">${d}</label>`).join('')}
                             </div>` : 
                             `<input type="date" class="date-input" value="${alarm.specificDate || ''}" onchange="alarmSystem.updateSpecificDate(${index}, this.value)">`
@@ -1126,28 +1503,32 @@
                     </div>
                     <div class="sound-container">
                         <select class="sound-select" onchange="alarmSystem.updateSound(${index}, this.value)">
-                            ${Object.keys(this.sounds).map(s=>`<option value="${s}" ${alarm.sound===s?'selected':''}>${s}</option>`).join('')}
+                            ${Object.keys(this.sounds).map(s => `<option value="${s}" ${alarm.sound === s ? 'selected' : ''}>${s}</option>`).join('')}
                         </select>
                         <button class="test-sound-btn" onclick="alarmSystem.testSoundForAlarm(${index}, this)">Test</button>
                     </div>
-                    ${alarm.sound==='Custom' ? `<input type="file" class="custom-audio-input" accept="audio/*" onchange="alarmSystem.updateCustomSound(${index}, this.files[0])">` : ''}
+                    ${alarm.sound === 'Custom' ? `<input type="file" class="custom-audio-input" accept="audio/*" onchange="alarmSystem.updateCustomSound(${index}, this.files[0])">` : ''}
                     <div class="auto-snooze-block">
                         <label>Auto-Snooze in: 
                             <select class="auto-snooze-select" onchange="alarmSystem.updateAutoSnooze(${index}, this.value)">
-                                <option value="10" ${alarm.autoSnoozeTime===10?'selected':''}>10 seconds</option>
-                                <option value="15" ${alarm.autoSnoozeTime===15?'selected':''}>15 seconds</option>
-                                <option value="20" ${alarm.autoSnoozeTime===20?'selected':''}>20 seconds</option>
-                                <option value="30" ${alarm.autoSnoozeTime===30?'selected':''}>30 seconds</option>
-                                <option value="45" ${alarm.autoSnoozeTime===45?'selected':''}>45 seconds</option>
-                                <option value="60" ${alarm.autoSnoozeTime===60?'selected':''}>1 minute</option>
-                                <option value="none" ${alarm.autoSnoozeTime===null?'selected':''}>No auto-snooze</option>
+                                <option value="10" ${alarm.autoSnoozeTime === 10 ? 'selected' : ''}>10 seconds</option>
+                                <option value="15" ${alarm.autoSnoozeTime === 15 ? 'selected' : ''}>15 seconds</option>
+                                <option value="20" ${alarm.autoSnoozeTime === 20 ? 'selected' : ''}>20 seconds</option>
+                                <option value="30" ${alarm.autoSnoozeTime === 30 ? 'selected' : ''}>30 seconds</option>
+                                <option value="45" ${alarm.autoSnoozeTime === 45 ? 'selected' : ''}>45 seconds</option>
+                                <option value="60" ${alarm.autoSnoozeTime === 60 ? 'selected' : ''}>1 minute</option>
+                                <option value="none" ${alarm.autoSnoozeTime === null ? 'selected' : ''}>No auto-snooze</option>
                             </select>
                         </label>
                     </div>
                     <button class="snooze-btn" id="snooze-${index}" onclick="alarmSystem.snoozeAlarm(${index})">SNOOZE</button>
-                    <div class="status" id="status-${index}">${alarm.enabled?'ARMED':'DISABLED'}</div>
+                    <div class="status" id="status-${index}">${alarm.enabled ? 'ARMED' : 'DISABLED'}</div>
                     <button class="remove-alarm-btn" onclick="alarmSystem.confirmRemoveAlarm(${index})">-</button>
                 `;
+                    card.querySelectorAll('input, select, button, label, a').forEach(el => {
+                        el.addEventListener('mousedown', e => e.stopPropagation());
+                        el.draggable = false;
+                    });
                     container.appendChild(card);
                 });
                 if (this.alarms.length < 100) {
@@ -1159,15 +1540,75 @@
                     container.appendChild(addTile);
                 }
             }
+
+            setupDragAndDrop() {
+                const container = document.getElementById('alarmsContainer');
+
+                container.addEventListener('dragstart', (e) => {
+                    const card = e.target.closest('.alarm-card');
+                    if (!card || card.classList.contains('add-alarm-card')) {
+                        e.preventDefault();
+                        return;
+                    }
+                    if (e.target.closest('input, select, button, label, a')) {
+                        e.preventDefault();
+                        return;
+                    }
+                    this.dragSrcIndex = parseInt(card.dataset.index, 10);
+                    card.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', String(this.dragSrcIndex));
+                });
+
+                container.addEventListener('dragend', (e) => {
+                    const card = e.target.closest('.alarm-card');
+                    if (card) card.classList.remove('dragging');
+                    container.querySelectorAll('.alarm-card.drag-over').forEach(c => c.classList.remove('drag-over'));
+                    this.dragSrcIndex = null;
+                });
+
+                container.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    const card = e.target.closest('.alarm-card');
+                    if (!card || card.classList.contains('add-alarm-card')) return;
+                    container.querySelectorAll('.alarm-card.drag-over').forEach(c => {
+                        if (c !== card) c.classList.remove('drag-over');
+                    });
+                    if (parseInt(card.dataset.index, 10) !== this.dragSrcIndex) {
+                        card.classList.add('drag-over');
+                    }
+                });
+
+                container.addEventListener('dragleave', (e) => {
+                    const card = e.target.closest('.alarm-card');
+                    if (card) card.classList.remove('drag-over');
+                });
+
+                container.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const card = e.target.closest('.alarm-card');
+                    if (!card || card.classList.contains('add-alarm-card')) return;
+                    card.classList.remove('drag-over');
+                    const targetIndex = parseInt(card.dataset.index, 10);
+                    if (this.dragSrcIndex === null || this.dragSrcIndex === targetIndex) return;
+
+                    const [moved] = this.alarms.splice(this.dragSrcIndex, 1);
+                    this.alarms.splice(targetIndex, 0, moved);
+                    this.saveAlarms();
+                    this.createAlarmCards();
+                });
+            }
+
             addAlarm() {
                 if (this.alarms.length >= 100) return alert('Maximum of 100 alarms reached.');
-                const newId = this.alarms.length;
+                const newId = this.alarms.length ? Math.max(...this.alarms.map(a => a.id)) + 1 : 0;
                 this.alarms.push({
                     id: newId,
                     enabled: false,
                     time: '09:00:00',
                     days: [false, false, false, false, false, false, false],
-                    description: `Alarm ${newId+1}`,
+                    description: `Alarm ${this.alarms.length + 1}`,
                     sound: 'Beep',
                     isRinging: false,
                     lastTriggered: null,
@@ -1179,11 +1620,13 @@
                 this.saveAlarms();
                 this.createAlarmCards();
             }
+
             confirmRemoveAlarm(index) {
                 if (confirm("Are you sure you want to remove this alarm?")) {
                     this.removeAlarm(index);
                 }
             }
+
             removeAlarm(index) {
                 this.lastRemovedAlarm = {
                     alarm: this.alarms[index],
@@ -1194,6 +1637,7 @@
                 this.createAlarmCards();
                 document.getElementById("undoButton").style.display = 'inline-block';
             }
+
             undoLastRemoval() {
                 if (!this.lastRemovedAlarm) return;
                 this.alarms.splice(this.lastRemovedAlarm.index, 0, this.lastRemovedAlarm.alarm);
@@ -1202,6 +1646,7 @@
                 this.lastRemovedAlarm = null;
                 document.getElementById("undoButton").style.display = 'none';
             }
+
             setupUndoShortcut() {
                 document.addEventListener('keydown', (e) => {
                     const activeEl = document.activeElement;
@@ -1211,6 +1656,7 @@
                     }
                 });
             }
+
             startClock() {
                 const updateTime = () => {
                     const now = new Date();
@@ -1229,21 +1675,18 @@
                 updateTime();
                 setInterval(updateTime, 1000);
             }
+
             startAlarmChecker() {
-                // 1. Kill any existing worker to prevent double-timers
                 if (this.alarmWorker) {
                     this.alarmWorker.terminate();
                 }
-                // 2. Create the worker logic
                 const workerCode = `
                 setInterval(() => {
                     postMessage('tick');
                 }, 1000);
             `;
                 try {
-                    const blob = new Blob([workerCode], {
-                        type: 'application/javascript'
-                    });
+                    const blob = new Blob([workerCode], { type: 'application/javascript' });
                     const worker = new Worker(URL.createObjectURL(blob));
                     worker.onmessage = (e) => {
                         if (e.data === 'tick' && typeof this.checkAlarms === 'function') {
@@ -1253,68 +1696,67 @@
                     this.alarmWorker = worker;
                 } catch (workerError) {
                     console.error("Worker failed to start, falling back to main thread:", workerError);
-                    // Fallback: if Worker is blocked by browser, use standard interval
                     setInterval(() => this.checkAlarms(), 1000);
                 }
             }
+
             checkAlarms() {
-    const now = new Date();
-    const currentDay = now.getDay();
-    const currentTimeStr = now.toTimeString().substr(0, 8); // still used for recurring
+                const now = new Date();
+                const currentDay = now.getDay();
+                const currentTimeStr = now.toTimeString().substr(0, 8);
 
-    this.alarms.forEach((alarm, index) => {
-        if (!alarm.enabled || alarm.isRinging) return;
+                this.alarms.forEach((alarm, index) => {
+                    if (!alarm.enabled || alarm.isRinging) return;
 
-        // Skip if recently triggered (debounce / prevent double-trigger)
-        if (alarm.lastTriggered) {
-            const diffSec = (now - new Date(alarm.lastTriggered)) / 1000;
-            if (diffSec < 5) return; // increased safety margin
-        }
+                    if (alarm.lastTriggered) {
+                        const diffSec = (now - new Date(alarm.lastTriggered)) / 1000;
+                        if (diffSec < 5) return;
+                    }
 
-        let shouldTrigger = false;
+                    let shouldTrigger = false;
 
-        if (alarm.mode === 'recurring') {
-            if (alarm.days[currentDay] && alarm.time === currentTimeStr) {
-                shouldTrigger = true;
+                    if (alarm.mode === 'recurring') {
+                        if (alarm.days[currentDay] && alarm.time === currentTimeStr) {
+                            shouldTrigger = true;
+                        }
+                    } else if (alarm.mode === 'one-time' && alarm.specificDate) {
+                        const targetStr = `${alarm.specificDate}T${alarm.time}`;
+                        const targetDate = new Date(targetStr);
+                        if (now >= targetDate) {
+                            const last = alarm.lastTriggered ? new Date(alarm.lastTriggered) : null;
+                            if (!last || last < targetDate) {
+                                shouldTrigger = true;
+                            }
+                        }
+                    }
+
+                    if (shouldTrigger) {
+                        this.triggerAlarm(index);
+                    }
+                });
             }
-        } else if (alarm.mode === 'one-time' && alarm.specificDate) {
-            // Combine date + time into full datetime
-            const targetStr = `${alarm.specificDate}T${alarm.time}`;
-            const targetDate = new Date(targetStr);
 
-            // Trigger if now is at/after target AND not already triggered today
-            if (now >= targetDate) {
-                const last = alarm.lastTriggered ? new Date(alarm.lastTriggered) : null;
-                // Only trigger once per alarm instance
-                if (!last || last < targetDate) {
-                    shouldTrigger = true;
-                }
-            }
-        }
-
-        if (shouldTrigger) {
-            this.triggerAlarm(index);
-        }
-    });
-}
             triggerAlarm(index) {
                 const alarm = this.alarms[index];
                 alarm.isRinging = true;
                 alarm.lastTriggered = new Date();
                 this.activeAlarms.add(index);
-                document.getElementById(`alarm-${index}`).classList.add('ringing');
-                document.getElementById(`snooze-${index}`).classList.add('visible');
+                const card = document.getElementById(`alarm-${index}`);
+                if (card) {
+                    card.classList.add('ringing');
+                    if (this.autoScrollEnabled) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+                document.getElementById(`snooze-${index}`)?.classList.add('visible');
+
                 if (alarm.sound === 'Custom' && alarm.customSoundUrl) {
-                    // --- CUSTOM SOUND LOGIC (Using Audio Object Loop) ---
                     const audio = new Audio(alarm.customSoundUrl);
                     audio.loop = true;
                     audio.play().catch(e => console.error("Audio play failed", e));
                     this.soundLoops[index] = audio;
                 } else {
-                    // --- GENERATED SOUND LOGIC (Using Interval) ---
-                    // Play once immediately
                     this.playSelectedSound(alarm.sound);
-                    // Repeat every 2 seconds because generated sounds are short
                     this.soundLoops[index] = setInterval(() => {
                         this.playSelectedSound(alarm.sound);
                     }, 2000);
@@ -1326,14 +1768,14 @@
                 }
                 this.saveAlarms();
             }
+
             snoozeAlarm(index) {
                 const alarm = this.alarms[index];
                 alarm.isRinging = false;
-                document.getElementById(`alarm-${index}`).classList.remove('ringing');
-                document.getElementById(`snooze-${index}`).classList.remove('visible');
+                document.getElementById(`alarm-${index}`)?.classList.remove('ringing');
+                document.getElementById(`snooze-${index}`)?.classList.remove('visible');
                 this.activeAlarms.delete(index);
                 if (this.soundLoops[index]) {
-                    // Check if it's an Interval (number) or Audio Object
                     if (typeof this.soundLoops[index] === 'number') {
                         clearInterval(this.soundLoops[index]);
                     } else {
@@ -1344,12 +1786,16 @@
                 if (alarm.mode === 'one-time') {
                     alarm.enabled = false;
                     const card = document.getElementById(`alarm-${index}`);
-                    card.classList.remove('active');
-                    document.getElementById(`status-${index}`).textContent = 'DISABLED';
-                    card.querySelector('.alarm-toggle input').checked = false;
+                    if (card) {
+                        card.classList.remove('active');
+                        card.querySelector('.alarm-toggle input').checked = false;
+                    }
+                    const statusEl = document.getElementById(`status-${index}`);
+                    if (statusEl) statusEl.textContent = 'DISABLED';
                 }
                 this.saveAlarms();
             }
+
             toggleAlarm(index) {
                 this.alarms[index].enabled = !this.alarms[index].enabled;
                 const card = document.getElementById(`alarm-${index}`);
@@ -1363,7 +1809,6 @@
                     if (this.alarms[index].isRinging) {
                         this.snoozeAlarm(index);
                     } else if (this.soundLoops[index]) {
-                        // Safety cleanup for non-ringing sound loops
                         if (typeof this.soundLoops[index] === 'number') {
                             clearInterval(this.soundLoops[index]);
                         } else {
@@ -1374,10 +1819,12 @@
                 }
                 this.saveAlarms();
             }
+
             updateDescription(i, v) {
                 this.alarms[i].description = v;
                 this.saveAlarms();
             }
+
             updateTime(i, v) {
                 if (v.length === 5) {
                     v += ':00';
@@ -1385,20 +1832,24 @@
                 this.alarms[i].time = v;
                 this.saveAlarms();
             }
+
             updateDay(i, d, c) {
                 this.alarms[i].days[d] = c;
                 this.saveAlarms();
             }
+
             updateAutoSnooze(i, val) {
                 this.alarms[i].autoSnoozeTime = (val === 'none') ? null : parseInt(val, 10);
                 this.saveAlarms();
             }
+
             updateSound(i, v) {
                 this.alarms[i].sound = v;
                 if (v !== 'Custom') this.alarms[i].customSoundUrl = null;
                 this.saveAlarms();
                 this.createAlarmCards();
             }
+
             async updateCustomSound(i, file) {
                 if (file) {
                     this.alarms[i].customSoundUrl = URL.createObjectURL(file);
@@ -1406,6 +1857,7 @@
                     this.saveAlarms();
                 }
             }
+
             updateMode(i, v) {
                 this.alarms[i].mode = v;
                 if (v === 'one-time' && !this.alarms[i].specificDate) {
@@ -1414,20 +1866,98 @@
                 this.saveAlarms();
                 this.createAlarmCards();
             }
+
             updateSpecificDate(i, v) {
                 this.alarms[i].specificDate = v;
                 this.saveAlarms();
             }
+
+            setupGlobalMenu() {
+                const btn = document.getElementById('globalMenuBtn');
+                const overlay = document.getElementById('globalMenuOverlay');
+                const closeBtn = document.getElementById('globalMenuClose');
+                const autoScrollToggle = document.getElementById('autoScrollToggle');
+                const applySoundBtn = document.getElementById('applyGlobalSoundBtn');
+                const applySnoozeBtn = document.getElementById('applyGlobalAutoSnoozeBtn');
+                const globalSoundSelect = document.getElementById('globalSoundSelect');
+                const globalCustomInput = document.getElementById('globalCustomSoundInput');
+
+                autoScrollToggle.checked = this.autoScrollEnabled;
+
+                btn.addEventListener('click', () => {
+                    overlay.classList.add('open');
+                });
+                closeBtn.addEventListener('click', () => {
+                    overlay.classList.remove('open');
+                });
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) overlay.classList.remove('open');
+                });
+
+                autoScrollToggle.addEventListener('change', () => {
+                    this.autoScrollEnabled = autoScrollToggle.checked;
+                    localStorage.setItem('autoScrollToRinging', this.autoScrollEnabled ? 'true' : 'false');
+                });
+
+                globalSoundSelect.addEventListener('change', () => {
+                    if (globalSoundSelect.value === 'Custom') {
+                        globalCustomInput.style.display = 'block';
+                        globalCustomInput.click();
+                    } else {
+                        globalCustomInput.style.display = 'none';
+                    }
+                });
+
+                applySoundBtn.addEventListener('click', async () => {
+                    const sound = globalSoundSelect.value;
+                    if (sound === 'Custom') {
+                        const file = globalCustomInput.files[0];
+                        if (!file) {
+                            alert('Please choose a custom audio file first.');
+                            return;
+                        }
+                        for (let i = 0; i < this.alarms.length; i++) {
+                            this.alarms[i].sound = 'Custom';
+                            this.alarms[i].customSoundUrl = URL.createObjectURL(file);
+                            await audioDB.saveSound(this.alarms[i].id, file);
+                        }
+                    } else {
+                        this.alarms.forEach(alarm => {
+                            alarm.sound = sound;
+                            alarm.customSoundUrl = null;
+                        });
+                    }
+                    this.saveAlarms();
+                    this.createAlarmCards();
+                    alert(`Sound "${sound}" applied to all ${this.alarms.length} alarms.`);
+                    overlay.classList.remove('open');
+                });
+
+                applySnoozeBtn.addEventListener('click', () => {
+                    const val = document.getElementById('globalAutoSnoozeSelect').value;
+                    const snoozeVal = (val === 'none') ? null : parseInt(val, 10);
+                    this.alarms.forEach(alarm => {
+                        alarm.autoSnoozeTime = snoozeVal;
+                    });
+                    this.saveAlarms();
+                    this.createAlarmCards();
+                    const label = val === 'none' ? 'No auto-snooze' : (val === '60' ? '1 minute' : val + ' seconds');
+                    alert(`Auto-Snooze set to "${label}" for all ${this.alarms.length} alarms.`);
+                    overlay.classList.remove('open');
+                });
+            }
+
             playSelectedSound(type) {
                 if (this.sounds[type]) this.sounds[type].call(this);
             }
+
             playCustomSound(url) {
                 if (url) {
                     const audio = new Audio(url);
                     audio.play();
                 }
             }
-            // Generated sounds
+
             generateBeepSound() {
                 for (let i = 0; i < 5; i++) {
                     this.playTone(800, 'sine', 0.15, this.audioContext.currentTime + i * 0.25);
@@ -1495,6 +2025,7 @@
                 o.start(startTime);
                 o.stop(startTime + duration);
             }
+
             testSoundForAlarm(i, btn) {
                 const alarm = this.alarms[i];
                 if (alarm.sound === 'Custom' && alarm.customSoundUrl) {
@@ -1506,9 +2037,8 @@
                 setTimeout(() => btn.classList.remove('playing'), 300);
             }
         }
-        // Run it when the page is ready
+
         document.addEventListener('DOMContentLoaded', setupShareLinks);
-        // ===== Bootstrapping =====
         let alarmSystem;
         document.addEventListener('DOMContentLoaded', () => {
             alarmSystem = new MasterControlAlarms();
@@ -1523,23 +2053,14 @@
             const pageUrl = encodeURIComponent(window.location.href);
             const pageTitle = encodeURIComponent(document.title || "Multi Alarm Clock System + Time Calculator");
             const pageDesc = encodeURIComponent("Check out this awesome multi alarm clock and time calculator tool!");
-            // Facebook
             document.getElementById('share-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}`;
-            // X / Twitter
             document.getElementById('share-tw').href = `https://twitter.com/intent/tweet?url=${pageUrl}&text=${pageTitle}`;
-            // WhatsApp
             document.getElementById('share-wa').href = `https://api.whatsapp.com/send?text=${pageTitle}%20${pageUrl}`;
-            // Reddit
             document.getElementById('share-rd').href = `https://reddit.com/submit?url=${pageUrl}&title=${pageTitle}`;
-            // LinkedIn
             document.getElementById('share-in').href = `https://www.linkedin.com/sharing/share-offsite/?url=${pageUrl}`;
-            // Telegram
             document.getElementById('share-tg').href = `https://t.me/share/url?url=${pageUrl}&text=${pageTitle}`;
-            // Pinterest
             document.getElementById('share-pi').href = `https://pinterest.com/pin/create/button/?url=${pageUrl}&description=${pageTitle}`;
-            // Blogger (less common – links to create a new post)
             document.getElementById('share-bl').href = `https://www.blogger.com/blog-this.g?u=${pageUrl}&n=${pageTitle}`;
-            // Email (mailto:)
             document.getElementById('share-ml').href = `mailto:?subject=${pageTitle}&body=${pageDesc}%0A${pageUrl}`;
         }
     </script>
